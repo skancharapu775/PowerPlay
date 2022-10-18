@@ -15,6 +15,8 @@ public class mecanumDrive extends LinearOpMode {
     private DcMotor BRM = null;
     private DcMotor FLM = null;
     private DcMotor BLM = null;
+    private CRServo rightIntake = null;
+    private CRServo leftIntake  = null;
 
     double FRPower, BRPower, FLPower, BLPower;
     double directionMultiplier = 0.5;
@@ -31,7 +33,8 @@ public class mecanumDrive extends LinearOpMode {
         BRM = hardwareMap.get(DcMotor.class, "backRight");
         FLM = hardwareMap.get(DcMotor.class, "frontLeft");
         BLM = hardwareMap.get(DcMotor.class, "backLeft");
-
+        rightIntake = hardwareMap.get(CRServo.class,"WheelRight");
+        leftIntake = hardwareMap.get(CRServo.class,"WheelLeft");
 
         FRM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         BRM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -45,6 +48,10 @@ public class mecanumDrive extends LinearOpMode {
 
         BRM.setDirection(DcMotor.Direction.REVERSE);
         FRM.setDirection(DcMotor.Direction.REVERSE);
+        leftIntake.setDirection(CRServo.Direction.REVERSE);
+
+        boolean output = false;
+        boolean intake = false;
 
         waitForStart();
         runtime.reset();
@@ -75,6 +82,37 @@ public class mecanumDrive extends LinearOpMode {
             BRM.setPower(BRPower);
             FLM.setPower(FLPower);
             BLM.setPower(BLPower);
+
+            /*if (gamepad1.left_trigger > gamepad1.right_trigger) {
+                intake = false;
+                output = true;
+            }
+            else if (gamepad1.right_trigger > gamepad1.left_trigger) {
+                intake = true;
+                output = false;
+            }
+            else if (gamepad1.right_trigger > -.2 && gamepad1.left_trigger > -.2) {
+                intake = false;
+                output = false;
+                rightIntake.setPower(0);
+                leftIntake.setPower(0);
+            }
+//            else {
+//                intake = false;
+//                output = false;
+//            }
+
+            double intakePower = gamepad1.right_trigger;
+            double outputPower = gamepad1.left_trigger;
+
+            if (intake){
+                rightIntake.setPower(intakePower);
+                leftIntake.setPower(intakePower);
+            }
+            if (output) {
+                rightIntake.setPower(-outputPower);
+                leftIntake.setPower(-outputPower);
+            }*/
 
             telemetry.addData("FRPower", FRPower);
             telemetry.addData("BRPower", BRPower);
