@@ -23,7 +23,7 @@ import java.util.List;
  * is explained below.
  */
 @TeleOp(name = "Concept: TensorFlow Object Detection Webcam", group = "Concept")
-// @Disabled
+@Disabled
 public class sleeveDetection extends LinearOpMode {
 
     /*
@@ -38,9 +38,9 @@ public class sleeveDetection extends LinearOpMode {
 
 
     private static final String[] LABELS = {
-            "1 Bolt",
-            "2 Bulb",
-            "3 Panel"
+            "0 Triangle",
+            "1 Circle",
+            "2 Square"
     };
 
     /*

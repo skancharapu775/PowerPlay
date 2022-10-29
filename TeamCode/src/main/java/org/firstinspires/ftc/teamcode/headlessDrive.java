@@ -1,11 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.checkerframework.checker.units.qual.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.*;
 
 @TeleOp(name="headlessMode", group="--")
 //@Disabled
@@ -17,7 +23,15 @@ public class headlessDrive extends LinearOpMode {
     private DcMotor BRM = null;
     private DcMotor FLM = null;
     private DcMotor BLM = null;
-    private GyroSensor gyroscope = null;
+    private DcMotor slide = null; // 288 ticks per rotation
+    private CRServo rightIntake = null;
+    private CRServo leftIntake = null; // 288 ticks per rotation
+
+    // The IMU sensor object
+    BNO055IMU imu;
+    // State used for updating telemetry
+    Orientation angles;
+    Acceleration gravity;
 
     double FRPower, BRPower, FLPower, BLPower;
     double directionMultiplier = 0.5;
@@ -37,10 +51,12 @@ public class headlessDrive extends LinearOpMode {
         BRM = hardwareMap.get(DcMotor.class, "backRight");
         FLM = hardwareMap.get(DcMotor.class, "frontLeft");
         BLM = hardwareMap.get(DcMotor.class, "backLeft");
-        gyroscope = hardwareMap.get(GyroSensor.class, "");
+        slide = hardwareMap.get(DcMotor.class, "liftMotor");
+        rightIntake = hardwareMap.get(CRServo.class,"WheelRight");
+        leftIntake = hardwareMap.get(CRServo.class,"WheelLeft");
 
-
-        //GamePads to save previous state of gamepad
+        //intakeRight, intakeLeft
+        // GamePads to save previous state of gamepad
         Gamepad previousGamePad1 = new Gamepad();
         Gamepad currentGamePad1 = new Gamepad();
 
@@ -57,9 +73,27 @@ public class headlessDrive extends LinearOpMode {
         BRM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         FLM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         BLM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         BRM.setDirection(DcMotor.Direction.REVERSE);
         FRM.setDirection(DcMotor.Direction.REVERSE);
+
+        /*
+        //imu initialization
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled = true;
+        parameters.loggingTag = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+         */
 
         //direction for headless mode
         double direction;
@@ -77,6 +111,20 @@ public class headlessDrive extends LinearOpMode {
             }
             catch(RobotCoreException e){
             }
+
+            if (currentGamePad1.right_trigger > 0)
+            {
+                slide.setPower(-currentGamePad1.right_trigger);
+            }
+            else if (currentGamePad1.left_trigger > 0)
+            {
+                slide.setPower(-currentGamePad1.left_trigger);
+            }
+            else
+            {
+                slide.setPower(0);
+            }
+
 
             if (currentGamePad1.a && !previousGamePad1.a)
             {
@@ -108,6 +156,8 @@ public class headlessDrive extends LinearOpMode {
             BRM.setPower(BRPower);
             FLM.setPower(FLPower);
             BLM.setPower(BLPower);
+
+
 
 
             telemetry.addData("FRPower", FRPower);
