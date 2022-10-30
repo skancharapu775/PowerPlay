@@ -1,19 +1,15 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.checkerframework.checker.units.qual.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.*;
 
-@TeleOp(name="headlessMode", group="--")
+@TeleOp(name="headlessDrive", group="--")
 //@Disabled
 public class headlessDrive extends LinearOpMode {
 
@@ -25,19 +21,23 @@ public class headlessDrive extends LinearOpMode {
     private DcMotor BLM = null;
     private DcMotor slide = null; // 288 ticks per rotation
     private CRServo rightIntake = null;
-    private CRServo leftIntake = null; // 288 ticks per rotation
+    private CRServo leftIntake = null;
 
-    // The IMU sensor object
-    BNO055IMU imu;
-    // State used for updating telemetry
-    Orientation angles;
-    Acceleration gravity;
 
     double FRPower, BRPower, FLPower, BLPower;
     double directionMultiplier = 0.5;
+    double intakePower = 0.8;
+    double outtakePower = 0.5;
+
+
+    // Setting up Slug Mode Parameters
     boolean slugMode = false;
     double slugMultiplier = 0.33;
-    double gyroheading = 0;
+
+    // BNO055IMU is the orientation sensor
+    BNO055IMU imu;
+    Orientation lastAngles = new Orientation();
+    double globalAngle;
 
 
 
@@ -52,22 +52,17 @@ public class headlessDrive extends LinearOpMode {
         FLM = hardwareMap.get(DcMotor.class, "frontLeft");
         BLM = hardwareMap.get(DcMotor.class, "backLeft");
         slide = hardwareMap.get(DcMotor.class, "liftMotor");
-        rightIntake = hardwareMap.get(CRServo.class,"WheelRight");
-        leftIntake = hardwareMap.get(CRServo.class,"WheelLeft");
+        rightIntake = hardwareMap.get(CRServo.class,"leftWheel"); // configure these two
+        leftIntake = hardwareMap.get(CRServo.class,"rightWheel");
 
-        //intakeRight, intakeLeft
-        // GamePads to save previous state of gamepad
+        //GamePads to save previous state of gamepad for toggling slug mode
         Gamepad previousGamePad1 = new Gamepad();
         Gamepad currentGamePad1 = new Gamepad();
-
-
 
         FRM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         BRM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         FLM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         BLM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-
 
         FRM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         BRM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -78,22 +73,19 @@ public class headlessDrive extends LinearOpMode {
         BRM.setDirection(DcMotor.Direction.REVERSE);
         FRM.setDirection(DcMotor.Direction.REVERSE);
 
-        /*
-        //imu initialization
-
+        // Setting parameters for imu
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.mode = BNO055IMU.SensorMode.IMU;
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
-        parameters.loggingEnabled = true;
-        parameters.loggingTag = "IMU";
-        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
-        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        parameters.loggingEnabled = false;
 
-         */
+        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
+        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
+        // and named "imu".
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+
+        imu.initialize(parameters);
 
         //direction for headless mode
         double direction;
@@ -112,39 +104,50 @@ public class headlessDrive extends LinearOpMode {
             catch(RobotCoreException e){
             }
 
+            // button a to toggle slug mode
+            if (currentGamePad1.a && !previousGamePad1.a)
+            {
+                slugMode = !slugMode;
+            }
+
+            // linear slide
             if (currentGamePad1.right_trigger > 0)
             {
                 slide.setPower(-currentGamePad1.right_trigger);
             }
             else if (currentGamePad1.left_trigger > 0)
             {
-                slide.setPower(-currentGamePad1.left_trigger);
+                slide.setPower(currentGamePad1.left_trigger);
             }
             else
             {
                 slide.setPower(0);
             }
 
-
-            if (currentGamePad1.a && !previousGamePad1.a)
+            // intake
+            if (currentGamePad1.right_bumper && !currentGamePad1.left_bumper)
             {
-                slugMode = !slugMode;
+                leftIntake.setPower(intakePower);
+                rightIntake.setPower(intakePower);
+            }
+            else if (currentGamePad1.left_bumper && !currentGamePad1.right_bumper)
+            {
+                leftIntake.setPower(-intakePower);
+                rightIntake.setPower(-intakePower);
             }
 
-            // assume heading is positive gyro change
-            //setting direction, atan2 gives theta from polar coordinates
-            direction = Math.atan2(gamepad1.left_stick_x, gamepad1.left_stick_y) + (Math.PI)/2 - gyroheading;
+
+            // setting direction, atan2 gives theta in polar coordinates
+            direction = Math.atan2(gamepad1.left_stick_x, gamepad1.left_stick_y) - (getAngle()*(Math.PI/180)-(Math.PI/2));
             speed = Math.min(1.0, Math.sqrt(gamepad1.left_stick_x * gamepad1.left_stick_x + gamepad1.left_stick_y * gamepad1.left_stick_y));
 
-            telemetry.addData("direction", direction);
-            telemetry.addData("speed", speed);
+//          Math.min is to make sure the powers aren't set to anything more than one for now
+//          Dividing by 28 to get a number between -1 and 1 (power percentage instead of ticks/sec)
+            FLPower = (speed * Math.sin(direction + Math.PI / 4.0)  - directionMultiplier*gamepad1.right_stick_x);
+            FRPower = -(speed * Math.cos(direction + Math.PI / 4.0) - directionMultiplier*gamepad1.right_stick_x);
+            BLPower = -(speed * Math.cos(direction + Math.PI / 4.0) + directionMultiplier*gamepad1.right_stick_x);
+            BRPower = (speed * Math.sin(direction + Math.PI / 4.0) + directionMultiplier*gamepad1.right_stick_x);
 
-//            Math.min is to make sure the powers aren't set to anything more than one for now
-//            Dividing by 28 to get a number between -1 and 1 (power percentage instead of ticks/sec)
-            FLPower = Math.max(-1,(speed * Math.sin(direction + Math.PI / 4.0)  - directionMultiplier*gamepad1.right_stick_x));
-            FRPower = -Math.max(-1, (speed * Math.cos(direction + Math.PI / 4.0) - directionMultiplier*gamepad1.right_stick_x));
-            BLPower = -Math.max(-1, (speed * Math.cos(direction + Math.PI / 4.0) + directionMultiplier*gamepad1.right_stick_x));
-            BRPower = Math.max(-1, (speed * Math.sin(direction + Math.PI / 4.0) + directionMultiplier*gamepad1.right_stick_x));
             if (slugMode){
                 FRPower = FRPower * slugMultiplier;
                 BRPower = BRPower * slugMultiplier;
@@ -158,14 +161,37 @@ public class headlessDrive extends LinearOpMode {
             BLM.setPower(BLPower);
 
 
-
-
             telemetry.addData("FRPower", FRPower);
             telemetry.addData("BRPower", BRPower);
             telemetry.addData("FLPower", FLPower);
             telemetry.addData("BLPower", BLPower);
+            telemetry.addData("Direction", getAngle());
             telemetry.update();
 
         }
     }
+
+    private double getAngle()
+    {
+        /* We experimentally determined the Z axis is the axis we want to use for heading angle.
+           We have to process the angle because the imu works in euler angles so the Z axis is
+           returned as 0 to +180 or 0 to -180 rolling back to -179 or +179 when rotation passes
+           180 degrees. We detect this transition and track the total cumulative angle of rotation. */
+
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
+
+        if (deltaAngle < -180)
+            deltaAngle += 360;
+        else if (deltaAngle > 180)
+            deltaAngle -= 360;
+
+        globalAngle += deltaAngle;
+
+        lastAngles = angles;
+
+        return globalAngle;
+    }
+
 }

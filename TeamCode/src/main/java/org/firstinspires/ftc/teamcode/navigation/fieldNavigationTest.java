@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.navigation;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
@@ -45,7 +45,7 @@ import java.util.List;
  * is explained below.
  */
 
-@TeleOp(name="Vuforia Field Nav Webcam", group ="Concept")
+@TeleOp(name="fieldNavigationTest", group ="Concept")
 // @Disabled
 public class fieldNavigationTest extends LinearOpMode {
 

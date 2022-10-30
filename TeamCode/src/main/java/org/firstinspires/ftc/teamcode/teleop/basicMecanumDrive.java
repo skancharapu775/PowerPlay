@@ -1,13 +1,13 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="MecanumDrive", group="--")
+@TeleOp(name="basicMecanumDrive", group="--")
 //@Disabled
-public class mecanumDrive extends LinearOpMode {
+public class basicMecanumDrive extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -15,8 +15,9 @@ public class mecanumDrive extends LinearOpMode {
     private DcMotor BRM = null;
     private DcMotor FLM = null;
     private DcMotor BLM = null;
+    private DcMotor slide = null; // 288 ticks per rotation
     private CRServo rightIntake = null;
-    private CRServo leftIntake  = null;
+    private CRServo leftIntake = null; // 288 ticks per rotation
 
     double FRPower, BRPower, FLPower, BLPower;
     double directionMultiplier = 0.5;
@@ -48,7 +49,7 @@ public class mecanumDrive extends LinearOpMode {
 
         BRM.setDirection(DcMotor.Direction.REVERSE);
         FRM.setDirection(DcMotor.Direction.REVERSE);
-        leftIntake.setDirection(CRServo.Direction.REVERSE);
+        leftIntake.setDirection(CRServo.Direction.REVERSE); // change if needed
 
         boolean output = false;
         boolean intake = false;
