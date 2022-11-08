@@ -26,8 +26,22 @@ public class headlessDrive extends LinearOpMode {
 
     double FRPower, BRPower, FLPower, BLPower;
     double directionMultiplier = 0.5;
-    double intakePower = 0.8;
-    double outtakePower = 0.5;
+    double intakePower = 1;
+    double outtakePower = 1;
+
+    // default value
+    double slide_encoder_value = 3.14159;
+    boolean read_slide_encoder = false;
+    double ground_junctions = -0.1;
+
+    // positions, assume 0 is minimum
+    double min_position = 0;
+    double max_position = 100;
+    boolean slide_moving_to_position = false;
+    double two_points = -0.2;
+    double three_points = -0.5;
+    double four_points = -0.7;
+    double five_points = -1.0;
 
 
     // Setting up Slug Mode Parameters
@@ -46,32 +60,36 @@ public class headlessDrive extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
-
-        FRM = hardwareMap.get(DcMotor.class, "frontRight");
-        BRM = hardwareMap.get(DcMotor.class, "backRight");
-        FLM = hardwareMap.get(DcMotor.class, "frontLeft");
-        BLM = hardwareMap.get(DcMotor.class, "backLeft");
-        slide = hardwareMap.get(DcMotor.class, "liftMotor");
-        rightIntake = hardwareMap.get(CRServo.class,"leftWheel"); // configure these two
-        leftIntake = hardwareMap.get(CRServo.class,"rightWheel");
+        // get motors, linear slide, and wheel intakes from hardware map
+        FRM = hardwareMap.get(DcMotorEx.class, "frontRight");
+        BRM = hardwareMap.get(DcMotorEx.class, "backRight");
+        FLM = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        BLM = hardwareMap.get(DcMotorEx.class, "backLeft");
+        slide = hardwareMap.get(DcMotorEx.class, "liftMotor");
+        rightIntake = hardwareMap.get(CRServo.class,"WheelRight"); // configure these two
+        leftIntake = hardwareMap.get(CRServo.class,"WheelLeft");
 
         //GamePads to save previous state of gamepad for toggling slug mode
         Gamepad previousGamePad1 = new Gamepad();
         Gamepad currentGamePad1 = new Gamepad();
 
-        FRM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        BRM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        FLM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        BLM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        FRM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        BRM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        FLM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        BLM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
-        FRM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        BRM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        FLM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        BLM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        FRM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        BRM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        FLM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        BLM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        slide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        BRM.setDirection(DcMotor.Direction.REVERSE);
-        FRM.setDirection(DcMotor.Direction.REVERSE);
+        BRM.setDirection(DcMotorEx.Direction.REVERSE);
+        FRM.setDirection(DcMotorEx.Direction.REVERSE);
+
+        // TO USE: When presets implemented and arm calibration complete
+        // slide.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        // slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Setting parameters for imu
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -91,6 +109,7 @@ public class headlessDrive extends LinearOpMode {
         double direction;
         double speed;
 
+
         waitForStart();
         runtime.reset();
 
@@ -104,38 +123,69 @@ public class headlessDrive extends LinearOpMode {
             catch(RobotCoreException e){
             }
 
-            // button a to toggle slug mode
-            if (currentGamePad1.a && !previousGamePad1.a)
-            {
-                slugMode = !slugMode;
+
+            /*
+            // make sure to check for previous gamepad
+            if (!slide_moving_to_position) {
+                if (slide < min_position && slide > max_position) {
+                    if (currentGamePad1.right_trigger > 0) {
+                        slide.setPower(-currentGamePad1.right_trigger); // upward
+                    }
+                    else if (currentGamePad1.left_trigger > 0) {
+                        slide.setPower(currentGamePad1.left_trigger); // downward
+                    }
+                    else {
+                        slide.setPower(0);
+                    }
+                }
+                else {
+                    slide.setPower(0);
+                }
+            }
+             */
+
+            // use to find presets
+            if (currentGamePad1.b && !previousGamePad1.b) {
+                slide.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+                read_slide_encoder = true;
+            }
+
+            // use to find presets
+            if (read_slide_encoder) {
+                slide_encoder_value = slide.getCurrentPosition();
             }
 
             // linear slide
-            if (currentGamePad1.right_trigger > 0)
-            {
-                slide.setPower(-currentGamePad1.right_trigger);
+            if (currentGamePad1.right_trigger > 0) {
+                slide.setPower(-currentGamePad1.right_trigger); // upward
             }
-            else if (currentGamePad1.left_trigger > 0)
-            {
-                slide.setPower(currentGamePad1.left_trigger);
+            else if (currentGamePad1.left_trigger > 0) {
+                slide.setPower(currentGamePad1.left_trigger); // downward
             }
-            else
-            {
+            else {
                 slide.setPower(0);
             }
 
-            // intake
-            if (currentGamePad1.right_bumper && !currentGamePad1.left_bumper)
-            {
-                leftIntake.setPower(intakePower);
-                rightIntake.setPower(intakePower);
+            // biwheel intake
+            if (currentGamePad1.right_bumper && !currentGamePad1.left_bumper) {
+                leftIntake.setPower(-1); // outtake
+                rightIntake.setPower(1);
             }
-            else if (currentGamePad1.left_bumper && !currentGamePad1.right_bumper)
-            {
-                leftIntake.setPower(-intakePower);
-                rightIntake.setPower(-intakePower);
+            else if (currentGamePad1.left_bumper && !currentGamePad1.right_bumper) {
+                leftIntake.setPower(1); // intake
+                rightIntake.setPower(-1);
+            }
+            else {
+                leftIntake.setPower(0);
+                rightIntake.setPower(0);
             }
 
+            // button a to toggle slug mode
+            if (currentGamePad1.a && !previousGamePad1.a) {
+                slugMode = !slugMode;
+            }
 
             // setting direction, atan2 gives theta in polar coordinates
             direction = Math.atan2(gamepad1.left_stick_x, gamepad1.left_stick_y) - (getAngle()*(Math.PI/180)-(Math.PI/2));
@@ -143,10 +193,11 @@ public class headlessDrive extends LinearOpMode {
 
 //          Math.min is to make sure the powers aren't set to anything more than one for now
 //          Dividing by 28 to get a number between -1 and 1 (power percentage instead of ticks/sec)
-            FLPower = (speed * Math.sin(direction + Math.PI / 4.0)  - directionMultiplier*gamepad1.right_stick_x);
-            FRPower = -(speed * Math.cos(direction + Math.PI / 4.0) - directionMultiplier*gamepad1.right_stick_x);
-            BLPower = -(speed * Math.cos(direction + Math.PI / 4.0) + directionMultiplier*gamepad1.right_stick_x);
-            BRPower = (speed * Math.sin(direction + Math.PI / 4.0) + directionMultiplier*gamepad1.right_stick_x);
+//          Multiply by -1 to reverse the direction of the robot
+            FLPower = (speed * Math.sin(direction + Math.PI / 4.0)  - directionMultiplier*gamepad1.right_stick_x) * -1;
+            FRPower = -(speed * Math.cos(direction + Math.PI / 4.0) - directionMultiplier*gamepad1.right_stick_x) * -1;
+            BLPower = -(speed * Math.cos(direction + Math.PI / 4.0) + directionMultiplier*gamepad1.right_stick_x) * -1;
+            BRPower = (speed * Math.sin(direction + Math.PI / 4.0) + directionMultiplier*gamepad1.right_stick_x) * -1;
 
             if (slugMode){
                 FRPower = FRPower * slugMultiplier;
@@ -166,13 +217,13 @@ public class headlessDrive extends LinearOpMode {
             telemetry.addData("FLPower", FLPower);
             telemetry.addData("BLPower", BLPower);
             telemetry.addData("Direction", getAngle());
+            telemetry.addData("slide position", slide_encoder_value);
             telemetry.update();
 
         }
     }
 
-    private double getAngle()
-    {
+    private double getAngle() {
         /* We experimentally determined the Z axis is the axis we want to use for heading angle.
            We have to process the angle because the imu works in euler angles so the Z axis is
            returned as 0 to +180 or 0 to -180 rolling back to -179 or +179 when rotation passes

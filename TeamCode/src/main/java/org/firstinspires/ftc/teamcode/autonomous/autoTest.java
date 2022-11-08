@@ -55,19 +55,19 @@ public class autoTest extends LinearOpMode {
 
         waitForStart();
 
-        BRM.setDirection(DcMotor.Direction.REVERSE);
-        FRM.setDirection(DcMotor.Direction.REVERSE);
+        BRM.setDirection(DcMotorEx.Direction.REVERSE);
+        FRM.setDirection(DcMotorEx.Direction.REVERSE);
         // leftIntake.setDirection(CRServo.Direction.REVERSE);
 
-        FRM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        BRM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        FLM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        BLM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        FRM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        BRM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        FLM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        BLM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
-        FRM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        BRM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        FLM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        BLM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        FRM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        BRM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        FLM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        BLM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         // 5000 - first test 228 cm
         // 2000 - 92.4 cm, 91.5 cm, 90.1 cm tilted left, 91.3 cm tilted left
@@ -95,15 +95,15 @@ public class autoTest extends LinearOpMode {
     public void strafe(int centimeters) {
         int x_ticks = CMtoTicks(centimeters);
 
-        FRM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        BRM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        FLM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        BLM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FRM.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        BRM.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        FLM.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        BLM.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 
-        FRM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        BRM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        FLM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        BLM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        FRM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        BRM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        FLM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        BLM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         FRM.setTargetPosition(-x_ticks);
         BRM.setTargetPosition(x_ticks);
@@ -134,15 +134,15 @@ public class autoTest extends LinearOpMode {
     public void runStraight(double centimeters) {
         int ticks = CMtoTicks(centimeters);
 
-        FRM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        BRM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        FLM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        BLM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FRM.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        BRM.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        FLM.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        BLM.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 
-        FRM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        BRM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        FLM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        BLM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        FRM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        BRM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        FLM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        BLM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         FRM.setTargetPosition(ticks);
         BRM.setTargetPosition(ticks);
@@ -159,10 +159,10 @@ public class autoTest extends LinearOpMode {
         BRPower = Math.max(-1, (speed * Math.sin(direction + Math.PI / 4.0) + directionMultiplier*gamepad1.right_stick_x));
         */
 
-        FRM.setPower(.5);
-        BRM.setPower(.5);
-        FLM.setPower(.5);
-        BLM.setPower(.5);
+        FRM.setVelocity(10);
+        BRM.setVelocity(10);
+        FLM.setVelocity(10);
+        BLM.setVelocity(10);
 
         FRM.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         BRM.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
