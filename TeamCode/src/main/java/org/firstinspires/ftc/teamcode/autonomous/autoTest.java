@@ -159,10 +159,10 @@ public class autoTest extends LinearOpMode {
         BRPower = Math.max(-1, (speed * Math.sin(direction + Math.PI / 4.0) + directionMultiplier*gamepad1.right_stick_x));
         */
 
-        FRM.setVelocity(10);
-        BRM.setVelocity(10);
-        FLM.setVelocity(10);
-        BLM.setVelocity(10);
+        FRM.setPower(0.5);
+        BRM.setPower(0.5);
+        FLM.setPower(0.5);
+        BLM.setPower(0.5);
 
         FRM.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         BRM.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);

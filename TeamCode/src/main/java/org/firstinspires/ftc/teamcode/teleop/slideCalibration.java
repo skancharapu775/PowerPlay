@@ -43,7 +43,6 @@ public class slideCalibration extends LinearOpMode {
             catch(RobotCoreException e){
             }
 
-
             // linear slide
             if (currentGamePad1.right_trigger > 0) {
                 slide.setPower(-currentGamePad1.right_trigger);

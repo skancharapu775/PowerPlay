@@ -9,9 +9,9 @@ import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.*;
 
-@TeleOp(name="headlessDrive", group="--")
+@TeleOp(name="mainDrive", group="--")
 //@Disabled
-public class headlessDrive extends LinearOpMode {
+public class mainDrive extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -30,18 +30,18 @@ public class headlessDrive extends LinearOpMode {
     double outtakePower = 1;
 
     // default value
-    double slide_encoder_value = 3.14159;
+    double slide_encoder_value = 0;
     boolean read_slide_encoder = false;
+    boolean slide_moving_to_position = false;
+    double slidePower = 1;
 
     // positions, assume 0 is minimum
     double min_position = 0;
     double max_position = 100;
-    boolean slide_moving_to_position = false;
-    double two_points = -0.2;
-    double three_points = -0.5;
-    double four_points = -0.7;
-    double five_points = -1.0;
-
+    int two_points = 0;
+    int three_points = -4000;
+    int four_points = -6000;
+    int five_points = -8000;
 
     // Setting up Slug Mode Parameters
     boolean slugMode = false;
@@ -108,13 +108,16 @@ public class headlessDrive extends LinearOpMode {
         double direction;
         double speed;
 
+        // use to find presets
+        slide.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        read_slide_encoder = true;
 
         waitForStart();
         runtime.reset();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-
             try{
                 //setting previous state of gamepad1 and current position for later use toggling slug mode
                 previousGamePad1.copy(currentGamePad1);
@@ -123,28 +126,49 @@ public class headlessDrive extends LinearOpMode {
             catch(RobotCoreException e){
             }
 
-            // use to find presets
-            if (currentGamePad1.b && !previousGamePad1.b) {
-                slide.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            slide_encoder_value = slide.getCurrentPosition();
+            // currentGamePad1.dpad_down && !previousGamePad1.dpad_down
 
-                read_slide_encoder = true;
+            if (currentGamePad1.dpad_down && !previousGamePad1.dpad_down) {
+                slide.setTargetPosition(two_points);
+                slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                slide.setPower(slidePower);
+                slide_moving_to_position = true;
+            }
+            else if (currentGamePad1.dpad_left && !previousGamePad1.dpad_left) {
+                slide.setTargetPosition(three_points);
+                slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                slide.setPower(slidePower);
+                slide_moving_to_position = true;
+            }
+            else if (currentGamePad1.dpad_right && !previousGamePad1.dpad_right) {
+                slide.setTargetPosition(four_points);
+                slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                slide.setPower(slidePower);
+                slide_moving_to_position = true;
+            }
+            else if (currentGamePad1.dpad_up && !previousGamePad1.dpad_up) {
+                slide.setTargetPosition(five_points);
+                slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                slide.setPower(slidePower);
+                slide_moving_to_position = true;
             }
 
-            // use to find presets
-            if (read_slide_encoder) {
-                slide_encoder_value = slide.getCurrentPosition();
-            }
+            if (currentGamePad1.right_trigger > 0 || currentGamePad1.left_trigger > 0) {
+                if (slide_moving_to_position) {
+                    slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    slide_moving_to_position = false;
+                }
 
-            // linear slide
-            if (currentGamePad1.right_trigger > 0) {
-                slide.setPower(-currentGamePad1.right_trigger); // upward
-            }
-            else if (currentGamePad1.left_trigger > 0) {
-                slide.setPower(currentGamePad1.left_trigger); // downward
-            }
-            else {
-                slide.setPower(0);
+                if (currentGamePad1.right_trigger > 0) {
+                    slide.setPower(-currentGamePad1.right_trigger);
+                }
+                else if (currentGamePad1.left_trigger > 0) {
+                    slide.setPower(currentGamePad1.left_trigger);
+                }
+                else {
+                    slide.setPower(0);
+                }
             }
 
             // biwheel intake
@@ -190,13 +214,13 @@ public class headlessDrive extends LinearOpMode {
             FLM.setPower(FLPower);
             BLM.setPower(BLPower);
 
-
+            telemetry.addData("slide position", slide_encoder_value);
             telemetry.addData("FRPower", FRPower);
             telemetry.addData("BRPower", BRPower);
             telemetry.addData("FLPower", FLPower);
             telemetry.addData("BLPower", BLPower);
             telemetry.addData("Direction", getAngle());
-            telemetry.addData("slide position", slide_encoder_value);
+            telemetry.addData("Accelerometer", imu.getAcceleration());
             telemetry.update();
 
         }
