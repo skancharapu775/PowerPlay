@@ -25,6 +25,8 @@ public class mainDrive extends LinearOpMode {
 
 
     double FRPower, BRPower, FLPower, BLPower;
+
+    //set constants
     double directionMultiplier = 0.5;
     double intakePower = 1;
     double outtakePower = 1;
@@ -47,6 +49,7 @@ public class mainDrive extends LinearOpMode {
     boolean slugMode = false;
     double slugMultiplier = 0.33;
 
+    // set up imu for gyro
     // BNO055IMU is the orientation sensor
     BNO055IMU imu;
     Orientation lastAngles = new Orientation();
@@ -68,10 +71,11 @@ public class mainDrive extends LinearOpMode {
         rightIntake = hardwareMap.get(CRServo.class,"WheelRight"); // configure these two
         leftIntake = hardwareMap.get(CRServo.class,"WheelLeft");
 
-        //GamePads to save previous state of gamepad for toggling slug mode
+        //GamePads to save previous state of gamepad for button toggling
         Gamepad previousGamePad1 = new Gamepad();
         Gamepad currentGamePad1 = new Gamepad();
 
+        //setting motor parameters
         FRM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         BRM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         FLM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
@@ -87,8 +91,8 @@ public class mainDrive extends LinearOpMode {
         FRM.setDirection(DcMotorEx.Direction.REVERSE);
 
         // TO USE: When presets implemented and arm calibration complete
-//        slide.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-//        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slide.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Setting parameters for imu
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -215,7 +219,7 @@ public class mainDrive extends LinearOpMode {
             }
             else{
                  slide_encoder_value = slide.getCurrentPosition();
-                // currentGamePad1.dpad_down && !previousGamePad1.dpad_down
+//                 currentGamePad1.dpad_down && !previousGamePad1.dpad_down
 
                 if (currentGamePad1.dpad_down && !previousGamePad1.dpad_down) {
                     slide.setTargetPosition(two_points);
