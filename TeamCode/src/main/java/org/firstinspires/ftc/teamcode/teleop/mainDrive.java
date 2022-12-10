@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.*;
 
-@TeleOp(name="mainDrive", group="--")
+@TeleOp(name="MainDrive", group="--")
 //@Disabled
 public class mainDrive extends LinearOpMode {
 
@@ -25,6 +25,8 @@ public class mainDrive extends LinearOpMode {
 
 
     double FRPower, BRPower, FLPower, BLPower;
+
+    //set constants
     double directionMultiplier = 0.5;
     double intakePower = 1;
     double outtakePower = 1;
@@ -37,16 +39,19 @@ public class mainDrive extends LinearOpMode {
 
     // positions, assume 0 is minimum
     double min_position = 0;
-    double max_position = 100;
-    int two_points = 400;
-    int three_points = 3600;
-    int four_points = 5800;
-    int five_points = 8000;
+    double max_position = 4150;
+    double leeway = 35;
+    int two_points = 209;
+    int three_points = 1840;
+    int four_points = 3024;
+    int five_points = 4150;
+
 
     // Setting up Slug Mode Parameters
     boolean slugMode = false;
     double slugMultiplier = 0.33;
 
+    // set up imu for gyro
     // BNO055IMU is the orientation sensor
     BNO055IMU imu;
     Orientation lastAngles = new Orientation();
@@ -68,10 +73,14 @@ public class mainDrive extends LinearOpMode {
         rightIntake = hardwareMap.get(CRServo.class,"WheelRight"); // configure these two
         leftIntake = hardwareMap.get(CRServo.class,"WheelLeft");
 
-        //GamePads to save previous state of gamepad for toggling slug mode
+        //GamePads to save previous state of gamepad for button toggling
         Gamepad previousGamePad1 = new Gamepad();
         Gamepad currentGamePad1 = new Gamepad();
 
+        Gamepad previousGamePad2 = new Gamepad();
+        Gamepad currentGamePad2 = new Gamepad();
+
+        //setting motor parameters
         FRM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         BRM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         FLM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
@@ -87,8 +96,8 @@ public class mainDrive extends LinearOpMode {
         FRM.setDirection(DcMotorEx.Direction.REVERSE);
 
         // TO USE: When presets implemented and arm calibration complete
-        // slide.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        // slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slide.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Setting parameters for imu
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -113,6 +122,8 @@ public class mainDrive extends LinearOpMode {
         slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         read_slide_encoder = true;
 
+        boolean headlessMode = true;
+
         waitForStart();
         runtime.reset();
 
@@ -125,97 +136,191 @@ public class mainDrive extends LinearOpMode {
             }
             catch(RobotCoreException e){
             }
-
-            slide_encoder_value = slide.getCurrentPosition();
-            // currentGamePad1.dpad_down && !previousGamePad1.dpad_down
-
-            if (currentGamePad1.dpad_down && !previousGamePad1.dpad_down) {
-                slide.setTargetPosition(two_points);
-                slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                slide.setPower(slidePower);
-                slide_moving_to_position = true;
+            try{
+                //setting previous state of gamepad1 and current position for later use toggling slug mode
+                previousGamePad1.copy(currentGamePad1);
+                currentGamePad1.copy(gamepad1);
             }
-            else if (currentGamePad1.dpad_left && !previousGamePad1.dpad_left) {
-                slide.setTargetPosition(three_points);
-                slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                slide.setPower(slidePower);
-                slide_moving_to_position = true;
-            }
-            else if (currentGamePad1.dpad_right && !previousGamePad1.dpad_right) {
-                slide.setTargetPosition(four_points);
-                slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                slide.setPower(slidePower);
-                slide_moving_to_position = true;
-            }
-            else if (currentGamePad1.dpad_up && !previousGamePad1.dpad_up) {
-                slide.setTargetPosition(five_points);
-                slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                slide.setPower(slidePower);
-                slide_moving_to_position = true;
+            catch(RobotCoreException e){
             }
 
-            if (currentGamePad1.right_trigger > 0 || currentGamePad1.left_trigger > 0) {
-                if (slide_moving_to_position) {
-                    slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    slide_moving_to_position = false;
+            if(currentGamePad1.right_bumper && !previousGamePad1.right_bumper){
+                headlessMode = !headlessMode;
+            }
+
+            if(headlessMode) {
+                slide_encoder_value = slide.getCurrentPosition();
+                // currentGamePad1.dpad_down && !previousGamePad1.dpad_down
+
+                if (currentGamePad1.a && !previousGamePad1.a) {
+                    slide.setTargetPosition(two_points);
+                    slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    slide.setPower(slidePower);
+                    slide_moving_to_position = true;
+                } else if (currentGamePad1.x && !previousGamePad1.x) {
+                    slide.setTargetPosition(three_points);
+                    slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    slide.setPower(slidePower);
+                    slide_moving_to_position = true;
+                } else if (currentGamePad1.b && !previousGamePad1.b) {
+                    slide.setTargetPosition(four_points);
+                    slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    slide.setPower(slidePower);
+                    slide_moving_to_position = true;
+                } else if (currentGamePad1.y && !previousGamePad1.y) {
+                    slide.setTargetPosition(five_points);
+                    slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    slide.setPower(slidePower);
+                    slide_moving_to_position = true;
+                } else if (currentGamePad1.dpad_down && !previousGamePad1.dpad_down) {
+                    slide.setTargetPosition(0);
+                    slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    slide.setPower(slidePower);
+                    slide_moving_to_position = true;
                 }
 
-                if (currentGamePad1.right_trigger > 0) {
-                    slide.setPower(-currentGamePad1.right_trigger);
+                if (currentGamePad2.right_trigger > 0 || currentGamePad2.left_trigger > 0 && slide_encoder_value < max_position - leeway && slide_encoder_value < min_position - leeway) {
+                    if (slide_moving_to_position) {
+                        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        slide_moving_to_position = false;
+                    }
+
+                    if (currentGamePad2.left_trigger > 0 && slide_encoder_value < max_position + leeway) {
+                        slide.setPower(-currentGamePad2.left_trigger);
+                    } else if (currentGamePad2.right_trigger > 0 && slide_encoder_value > min_position - leeway) {
+                        slide.setPower(currentGamePad2.right_trigger);
+                    } else {
+                        slide.setPower(0);
+                    }
                 }
-                else if (currentGamePad1.left_trigger > 0) {
-                    slide.setPower(currentGamePad1.left_trigger);
-                }
-                else {
+                else if (!slide_moving_to_position) {
                     slide.setPower(0);
                 }
-            }
-            else if (!slide_moving_to_position) {
-                slide.setPower(0);
-            }
 
-            // biwheel intake
-            if (currentGamePad1.right_bumper && !currentGamePad1.left_bumper) {
-                leftIntake.setPower(-1); // outtake
-                rightIntake.setPower(1);
-            }
-            else if (currentGamePad1.left_bumper && !currentGamePad1.right_bumper) {
-                leftIntake.setPower(1); // intake
-                rightIntake.setPower(-1);
-            }
-            else {
-                leftIntake.setPower(0);
-                rightIntake.setPower(0);
-            }
+                // biwheel intake
+                if (currentGamePad2.right_bumper && !currentGamePad2.left_bumper) {
+                    leftIntake.setPower(-1); // outtake
+                    rightIntake.setPower(1);
+                } else if (currentGamePad2.left_bumper && !currentGamePad2.right_bumper) {
+                    leftIntake.setPower(1); // intake
+                    rightIntake.setPower(-1);
+                } else {
+                    leftIntake.setPower(0);
+                    rightIntake.setPower(0);
+                }
 
-            // button a to toggle slug mode
-            if (currentGamePad1.a && !previousGamePad1.a) {
-                slugMode = !slugMode;
-            }
+                // button a to toggle slug mode
+                if (currentGamePad1.a && !previousGamePad1.a) {
+                    slugMode = !slugMode;
+                }
 
-            // setting direction, atan2 gives theta in polar coordinates
-            direction = Math.atan2(gamepad1.left_stick_x, gamepad1.left_stick_y) - (getAngle()*(Math.PI/180)-(Math.PI/2));
-            speed = Math.min(1.0, Math.sqrt(gamepad1.left_stick_x * gamepad1.left_stick_x + gamepad1.left_stick_y * gamepad1.left_stick_y));
+                // setting direction, atan2 gives theta in polar coordinates
+                direction = Math.atan2(gamepad1.left_stick_x, gamepad1.left_stick_y) - (getAngle() * (Math.PI / 180) - (Math.PI / 2));
+                speed = Math.min(1.0, Math.sqrt(gamepad1.left_stick_x * gamepad1.left_stick_x + gamepad1.left_stick_y * gamepad1.left_stick_y));
 
 //          Math.min is to make sure the powers aren't set to anything more than one for now
 //          Dividing by 28 to get a number between -1 and 1 (power percentage instead of ticks/sec)
 //          Multiply by -1 to reverse the direction of the robot
-            FLPower = (speed * Math.sin(direction + Math.PI / 4.0)  - directionMultiplier*gamepad1.right_stick_x) * -1;
-            FRPower = -(speed * Math.cos(direction + Math.PI / 4.0) - directionMultiplier*gamepad1.right_stick_x) * -1;
-            BLPower = -(speed * Math.cos(direction + Math.PI / 4.0) + directionMultiplier*gamepad1.right_stick_x) * -1;
-            BRPower = (speed * Math.sin(direction + Math.PI / 4.0) + directionMultiplier*gamepad1.right_stick_x) * -1;
+                FLPower = (speed * Math.sin(direction + Math.PI / 4.0) - directionMultiplier * gamepad1.right_stick_x) * -1;
+                FRPower = -(speed * Math.cos(direction + Math.PI / 4.0) - directionMultiplier * gamepad1.right_stick_x) * -1;
+                BLPower = -(speed * Math.cos(direction + Math.PI / 4.0) + directionMultiplier * gamepad1.right_stick_x) * -1;
+                BRPower = (speed * Math.sin(direction + Math.PI / 4.0) + directionMultiplier * gamepad1.right_stick_x) * -1;
 
-            if (slugMode){
-                FRPower = FRPower * slugMultiplier;
-                BRPower = BRPower * slugMultiplier;
-                FLPower = FLPower * slugMultiplier;
-                BLPower = BLPower * slugMultiplier;
+                if (slugMode) {
+                    FRPower = FRPower * slugMultiplier;
+                    BRPower = BRPower * slugMultiplier;
+                    FLPower = FLPower * slugMultiplier;
+                    BLPower = BLPower * slugMultiplier;
+                }
+
+                FRM.setPower(FRPower);
+                BRM.setPower(BRPower);
+                FLM.setPower(FLPower);
+                BLM.setPower(BLPower);
             }
+            else{
+                slide_encoder_value = slide.getCurrentPosition();
+//                 currentGamePad1.dpad_down && !previousGamePad1.dpad_down
 
-            FRM.setPower(FRPower);
-            BRM.setPower(BRPower);
-            FLM.setPower(FLPower);
-            BLM.setPower(BLPower);
+                if (currentGamePad1.a && !previousGamePad1.a) {
+                    slide.setTargetPosition(two_points);
+                    slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    slide.setPower(slidePower);
+                    slide_moving_to_position = true;
+                } else if (currentGamePad1.x && !previousGamePad1.x) {
+                    slide.setTargetPosition(three_points);
+                    slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    slide.setPower(slidePower);
+                    slide_moving_to_position = true;
+                } else if (currentGamePad1.b && !previousGamePad1.b) {
+                    slide.setTargetPosition(four_points);
+                    slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    slide.setPower(slidePower);
+                    slide_moving_to_position = true;
+                } else if (currentGamePad1.y && !previousGamePad1.y) {
+                    slide.setTargetPosition(five_points);
+                    slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    slide.setPower(slidePower);
+                    slide_moving_to_position = true;
+                } else if (currentGamePad1.dpad_down && !previousGamePad1.dpad_down) {
+                    slide.setTargetPosition(0);
+                    slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    slide.setPower(slidePower);
+                    slide_moving_to_position = true;
+                }
+
+                if (currentGamePad2.right_trigger > 0 || currentGamePad2.left_trigger > 0) {
+                    if (slide_moving_to_position) {
+                        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        slide_moving_to_position = false;
+                    }
+
+                    if (currentGamePad2.left_trigger > 0 && slide_encoder_value < max_position + leeway) {
+                        slide.setPower(-currentGamePad2.left_trigger);
+                    } else if (currentGamePad2.right_trigger > 0 && slide_encoder_value > min_position - leeway) {
+                        slide.setPower(currentGamePad2.right_trigger);
+                    } else {
+                        slide.setPower(0);
+                    }
+                }
+                else if (!slide_moving_to_position) {
+                    slide.setPower(0);
+                }
+
+                // biwheel intake
+                if (currentGamePad2.right_bumper && !currentGamePad2.left_bumper) {
+                    leftIntake.setPower(-1); // outtake
+                    rightIntake.setPower(1);
+                } else if (currentGamePad2.left_bumper && !currentGamePad2.right_bumper) {
+                    leftIntake.setPower(1); // intake
+                    rightIntake.setPower(-1);
+                } else {
+                    leftIntake.setPower(0);
+                    rightIntake.setPower(0);
+                }
+
+                // button a to toggle slug mode
+                if (currentGamePad1.a && !previousGamePad1.a) {
+                    slugMode = !slugMode;
+                }
+
+                FRPower = (-gamepad1.left_stick_y - gamepad1.left_stick_x - directionMultiplier*gamepad1.right_stick_x);
+                BRPower = (-gamepad1.left_stick_y + gamepad1.left_stick_x - directionMultiplier*gamepad1.right_stick_x);
+                FLPower = (-gamepad1.left_stick_y + gamepad1.left_stick_x + directionMultiplier*gamepad1.right_stick_x);
+                BLPower = (-gamepad1.left_stick_y - gamepad1.left_stick_x + directionMultiplier*gamepad1.right_stick_x);
+
+                if (slugMode) {
+                    FRPower = FRPower * slugMultiplier;
+                    BRPower = BRPower * slugMultiplier;
+                    FLPower = FLPower * slugMultiplier;
+                    BLPower = BLPower * slugMultiplier;
+                }
+
+                FRM.setPower(FRPower);
+                BRM.setPower(BRPower);
+                FLM.setPower(FLPower);
+                BLM.setPower(BLPower);
+            }
 
             telemetry.addData("slide position", slide_encoder_value);
             telemetry.addData("FRPower", FRPower);
@@ -250,4 +355,5 @@ public class mainDrive extends LinearOpMode {
 
         return globalAngle;
     }
+
 }

@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.*;
 
-@Autonomous(name="AutonomousTest", group="--")
+@Autonomous(name="MainAutonomous", group="--")
 //@Disabled
 public class mainAutonomous extends LinearOpMode {
     // Declare OpMode members.
