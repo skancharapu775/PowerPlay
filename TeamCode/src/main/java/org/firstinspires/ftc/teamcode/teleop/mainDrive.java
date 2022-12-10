@@ -38,10 +38,10 @@ public class mainDrive extends LinearOpMode {
     // positions, assume 0 is minimum
     double min_position = 0;
     double max_position = 100;
-    int two_points = 0;
-    int three_points = -4000;
-    int four_points = -6000;
-    int five_points = -8000;
+    int two_points = 400;
+    int three_points = 3600;
+    int four_points = 5800;
+    int five_points = 8000;
 
     // Setting up Slug Mode Parameters
     boolean slugMode = false;
@@ -170,6 +170,9 @@ public class mainDrive extends LinearOpMode {
                     slide.setPower(0);
                 }
             }
+            else if (!slide_moving_to_position) {
+                slide.setPower(0);
+            }
 
             // biwheel intake
             if (currentGamePad1.right_bumper && !currentGamePad1.left_bumper) {
@@ -247,5 +250,4 @@ public class mainDrive extends LinearOpMode {
 
         return globalAngle;
     }
-
 }
