@@ -271,17 +271,17 @@ public class mainAutonomous extends LinearOpMode {
             pow = (offset / 30);
             pow = Math.max(Math.min(pow, 1), -1);
             if(getAngle()>currentAngle+degrees+1){
-                FLM.setPower(pow);
-                BLM.setPower(pow);
-                FRM.setPower(-pow);
-                BRM.setPower(-pow);
-            }
-            if(getAngle()<(currentAngle+degrees-1)
-            ){
                 FLM.setPower(-pow);
                 BLM.setPower(-pow);
                 FRM.setPower(pow);
                 BRM.setPower(pow);
+            }
+            if(getAngle()<(currentAngle+degrees-1)
+            ){
+                FLM.setPower(pow);
+                BLM.setPower(pow);
+                FRM.setPower(-pow);
+                BRM.setPower(-pow);
             }
         }
     }
