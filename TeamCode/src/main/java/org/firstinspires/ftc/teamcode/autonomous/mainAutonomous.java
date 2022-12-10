@@ -112,15 +112,41 @@ public class mainAutonomous extends LinearOpMode {
     }
 
     private void oneRight() {
-
+        int leftside = -1;
+        runStraight(6, 90);
+        turnToAngle(-90);
+        runStraight(60, 90);
+        turnToAngle(90);
+        runStraight(70, 90);
+        turnToAngle(45*leftside);
+        runStraight(8, 90);
+        runStraight(8, 180);
+        turnToAngle(-45*leftside);
     }
-
     private void twoRight() {
-
+        int leftside = -1;
+        runStraight(6, 90);
+        turnToAngle(90);
+        runStraight(60, 90);
+        turnToAngle(-90);
+        runStraight(70, 90);
+        turnToAngle(-45*leftside);
+        runStraight(8, 90);
+        runStraight(8, 180);
+        turnToAngle(45*leftside);
     }
 
     private void threeRight() {
-
+        int leftside = -1;
+        runStraight(6, 90);
+        turnToAngle(90);
+        runStraight(60, 90);
+        turnToAngle(-90);
+        runStraight(50, 90);
+        turnToAngle(45*leftside);
+        runStraight(8, 90);
+        runStraight(8, 180);
+        turnToAngle(-45*leftside);
     }
 
     private double getAngle() {
