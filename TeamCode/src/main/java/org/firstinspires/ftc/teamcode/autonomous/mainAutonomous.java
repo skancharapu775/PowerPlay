@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.hardware.bosch.BNO055IMU;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.*;
 
 @Autonomous(name="AutonomousTest", group="--")
@@ -79,7 +81,7 @@ public class mainAutonomous extends LinearOpMode {
     }
 
     private void oneLeft() {
-        runStraight(6, 90);
+        runStraight(8, 90);
         turnToAngle(-90);
         runStraight(60, 90);
         turnToAngle(90);
@@ -267,22 +269,15 @@ public class mainAutonomous extends LinearOpMode {
         BRM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         FLM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         BLM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        while (getAngle()>currentAngle+degrees+1 || getAngle()<currentAngle+degrees-1){
-            pow = (offset / 30);
+        while (offset>0.5 || offset<-0.5){
+            pow = offset / 65;
             pow = Math.max(Math.min(pow, 1), -1);
-            if(getAngle()>currentAngle+degrees+1){
-                FLM.setPower(-pow);
-                BLM.setPower(-pow);
-                FRM.setPower(pow);
-                BRM.setPower(pow);
-            }
-            if(getAngle()<(currentAngle+degrees-1)
-            ){
-                FLM.setPower(pow);
-                BLM.setPower(pow);
-                FRM.setPower(-pow);
-                BRM.setPower(-pow);
-            }
+
+            FLM.setPower(pow);
+            BLM.setPower(pow);
+            FRM.setPower(-pow);
+            BRM.setPower(-pow);
+            offset = currentAngle+degrees - getAngle();
         }
     }
 }

@@ -17,7 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.*;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name="AutonomousTest", group="--")
+@Autonomous(name="j", group="--")
 //@Disabled
 public class autoTest extends LinearOpMode {
 
