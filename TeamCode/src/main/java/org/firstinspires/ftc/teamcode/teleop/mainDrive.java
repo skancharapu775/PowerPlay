@@ -40,7 +40,7 @@ public class mainDrive extends LinearOpMode {
     // positions, assume 0 is minimum
     double min_position = 0;
     double max_position = 100;
-    int two_points = 0;
+    int two_points = 258;
     int three_points = -4000;
     int four_points = -6487;
     int five_points = -8537;
@@ -74,6 +74,8 @@ public class mainDrive extends LinearOpMode {
         //GamePads to save previous state of gamepad for button toggling
         Gamepad previousGamePad1 = new Gamepad();
         Gamepad currentGamePad1 = new Gamepad();
+        Gamepad previousGamePad2 = new Gamepad();
+        Gamepad currentGamePad2 = new Gamepad();
 
         //setting motor parameters
         FRM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
@@ -128,10 +130,12 @@ public class mainDrive extends LinearOpMode {
                 //setting previous state of gamepad1 and current position for later use toggling slug mode
                 previousGamePad1.copy(currentGamePad1);
                 currentGamePad1.copy(gamepad1);
+                previousGamePad2.copy(currentGamePad2);
+                currentGamePad2.copy(gamepad2);
             }
             catch(RobotCoreException e){
             }
-            if(currentGamePad1.x && !previousGamePad1.x){
+            if(currentGamePad1.right_bumper && !previousGamePad1.right_bumper){
                 headlessMode = !headlessMode;
             }
 
@@ -161,26 +165,30 @@ public class mainDrive extends LinearOpMode {
                     slide_moving_to_position = true;
                 }
 
-                if (currentGamePad1.right_trigger > 0 || currentGamePad1.left_trigger > 0) {
+                if (currentGamePad2.right_trigger > 0 || currentGamePad2.left_trigger > 0) {
                     if (slide_moving_to_position) {
                         slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                         slide_moving_to_position = false;
                     }
 
-                    if (currentGamePad1.right_trigger > 0) {
-                        slide.setPower(-currentGamePad1.right_trigger);
-                    } else if (currentGamePad1.left_trigger > 0) {
-                        slide.setPower(currentGamePad1.left_trigger);
+                    if (currentGamePad2.right_trigger > 0) {
+                        slide.setPower(currentGamePad1.right_trigger);
+                    } else if (currentGamePad2.left_trigger > 0) {
+                        slide.setPower(-currentGamePad2.left_trigger);
                     } else {
                         slide.setPower(0);
                     }
                 }
+                else{
+                    slide.setPower(0);
+                }
+
 
                 // biwheel intake
-                if (currentGamePad1.right_bumper && !currentGamePad1.left_bumper) {
+                if ((currentGamePad1.b && !currentGamePad1.x) || (currentGamePad2.left_bumper && !currentGamePad2.right_bumper)) {
                     leftIntake.setPower(-1); // outtake
                     rightIntake.setPower(1);
-                } else if (currentGamePad1.left_bumper && !currentGamePad1.right_bumper) {
+                } else if ((currentGamePad1.x && !currentGamePad1.b) || (currentGamePad2.right_bumper && !currentGamePad2.left_bumper)) {
                     leftIntake.setPower(1); // intake
                     rightIntake.setPower(-1);
                 } else {
@@ -189,7 +197,7 @@ public class mainDrive extends LinearOpMode {
                 }
 
                 // button a to toggle slug mode
-                if (currentGamePad1.a && !previousGamePad1.a) {
+                if (currentGamePad1.left_bumper && !previousGamePad1.left_bumper) {
                     slugMode = !slugMode;
                 }
 
@@ -287,10 +295,10 @@ public class mainDrive extends LinearOpMode {
                     BLPower = BLPower * slugMultiplier;
                 }
 
-                FRM.setPower(FRPower);
-                BRM.setPower(BRPower);
-                FLM.setPower(FLPower);
-                BLM.setPower(BLPower);
+                FRM.setPower(-FRPower);
+                BRM.setPower(-BRPower);
+                FLM.setPower(-FLPower);
+                BLM.setPower(-BLPower);
             }
 
             telemetry.addData("slide position", slide_encoder_value);
