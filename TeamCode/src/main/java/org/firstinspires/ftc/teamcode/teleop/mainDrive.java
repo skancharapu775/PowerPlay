@@ -23,7 +23,6 @@ public class mainDrive extends LinearOpMode {
     private CRServo rightIntake = null;
     private CRServo leftIntake = null;
 
-
     double FRPower, BRPower, FLPower, BLPower;
 
     //set constants
@@ -39,9 +38,9 @@ public class mainDrive extends LinearOpMode {
 
     // positions, assume 0 is minimum
     double min_position = 0;
-    double max_position = 4150;
+    double max_position = 4180;
     double leeway = 35;
-    int two_points = 209;
+    int two_points = 352;
     int three_points = 1840;
     int four_points = 3024;
     int five_points = 4150;
@@ -133,11 +132,7 @@ public class mainDrive extends LinearOpMode {
                 //setting previous state of gamepad1 and current position for later use toggling slug mode
                 previousGamePad1.copy(currentGamePad1);
                 currentGamePad1.copy(gamepad1);
-            }
-            catch(RobotCoreException e){
-            }
-            try{
-                //setting previous state of gamepad1 and current position for later use toggling slug mode
+
                 previousGamePad2.copy(currentGamePad2);
                 currentGamePad2.copy(gamepad2);
             }
@@ -152,6 +147,7 @@ public class mainDrive extends LinearOpMode {
                 slide_encoder_value = slide.getCurrentPosition();
                 // currentGamePad1.dpad_down && !previousGamePad1.dpad_down
 
+                // check for presets and zero position
                 if (currentGamePad2.a && !previousGamePad2.a) {
                     slide.setTargetPosition(two_points);
                     slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
@@ -187,7 +183,7 @@ public class mainDrive extends LinearOpMode {
 
                     if (currentGamePad2.left_trigger > 0) {
                         slide.setPower(-currentGamePad2.left_trigger);
-                    } else if (currentGamePad2.right_trigger > 0 && slide_encoder_value > min_position - leeway) {
+                    } else if (currentGamePad2.right_trigger > 0) {
                         slide.setPower(currentGamePad2.right_trigger);
                     } else {
                         slide.setPower(0);
@@ -242,6 +238,7 @@ public class mainDrive extends LinearOpMode {
                 slide_encoder_value = slide.getCurrentPosition();
 //                 currentGamePad1.dpad_down && !previousGamePad1.dpad_down
 
+                // check for presets and zero position
                 if (currentGamePad2.a && !previousGamePad2.a) {
                     slide.setTargetPosition(two_points);
                     slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
@@ -355,5 +352,4 @@ public class mainDrive extends LinearOpMode {
 
         return globalAngle;
     }
-
 }
