@@ -30,14 +30,10 @@ public class autoTest extends LinearOpMode {
     private CRServo rightIntake = null;
     private CRServo leftIntake  = null;
 
-
     double FRPower, BRPower, FLPower, BLPower;
     double directionMultiplier = 0.5;
     int target;
     // REV Motors TICK COUNT = 28 ticks
-
-
-
 
     @Override
     public void runOpMode() {

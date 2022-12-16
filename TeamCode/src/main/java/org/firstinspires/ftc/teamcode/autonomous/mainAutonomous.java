@@ -21,10 +21,10 @@ public class mainAutonomous extends LinearOpMode {
     // case (Left perspective looking at field from starting point)
 
     double FRPower, BRPower, FLPower, BLPower;
-    double directionMultiplier = 0.5;
-    // REV Motors TICK COUNT = 28 ticks
-
     double speed = 0.5;
+    double turningPower = 0.3;
+    double errorMargin = 1; // degrees
+    // REV Motors TICK COUNT = 28 ticks
 
     // BNO055IMU is the orientation sensor
     BNO055IMU imu;
@@ -75,48 +75,32 @@ public class mainAutonomous extends LinearOpMode {
         FLM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         BLM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        oneLeft();
+        twoLeft();
     }
 
     private void oneLeft() {
-        runStraight(6, 90);
-        turnToAngle(-90);
-        runStraight(60, 90);
+        runStraight(132, 90);
         turnToAngle(90);
-        runStraight(70, 90);
-        turnToAngle(45);
-        runStraight(8, 90);
-        sleep(2000);
-        runStraight(4, -90);
     }
 
     private void twoLeft() {
         runStraight(132, 90);
-        turnToAngle(45);
-        runStraight(8, 90);
-        sleep(2000);
-        runStraight(4, -90);
+        turnToAngle(90);
     }
 
     private void threeLeft() {
-        runStraight(6, 90);
+        runStraight(132, 90);
         turnToAngle(90);
-        runStraight(60, 90);
-        turnToAngle(-90);
-        runStraight(70, 90);
-        turnToAngle(45);
-        runStraight(8, 90);
-        sleep(2000);
-        runStraight(4, -90);
-
     }
 
     private void oneRight() {
-
+        runStraight(132, 90);
+        turnToAngle(90);
     }
 
     private void twoRight() {
-
+        runStraight(132, 90);
+        turnToAngle(90);
     }
 
     private void threeRight() {
@@ -148,7 +132,7 @@ public class mainAutonomous extends LinearOpMode {
 
     public int CMtoTicks(double DistanceCM){
 
-        return (int) (DistanceCM * -23.7671);
+        return (int) (DistanceCM * 23.7671);
     }// calculation
 
     public void runStraight(double centimeters, double direction) {
@@ -233,30 +217,46 @@ public class mainAutonomous extends LinearOpMode {
     }
 
     public void turnToAngle(double degrees){
-        degrees = degrees * -1;
+        FRM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        FLM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BRM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BLM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         double currentAngle = getAngle();
-        double pow;
-        double offset = currentAngle+degrees - getAngle();
-        FRM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        BRM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        FLM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        BLM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        while (getAngle()>currentAngle+degrees+1 || getAngle()<currentAngle+degrees-1){
-            pow = (offset / 30);
-            pow = Math.max(Math.min(pow, 1), -1);
-            if(getAngle()>currentAngle+degrees+1){
-                FLM.setPower(pow);
-                BLM.setPower(pow);
-                FRM.setPower(-pow);
-                BRM.setPower(-pow);
+        double targetAngle = currentAngle + degrees;
+        double motorPower = turningPower;
+
+        while (currentAngle<(targetAngle-errorMargin) || currentAngle>(targetAngle+errorMargin))
+        {
+            if (Math.abs(targetAngle - currentAngle) < 5) {
+                motorPower = 0.2;
             }
-            if(getAngle()<(currentAngle+degrees-1)
-            ){
-                FLM.setPower(-pow);
-                BLM.setPower(-pow);
-                FRM.setPower(pow);
-                BRM.setPower(pow);
+            else {
+                motorPower = turningPower;
             }
+
+            if (currentAngle<targetAngle-errorMargin) {
+                FLM.setPower(-turningPower);
+                BLM.setPower(-turningPower);
+                FRM.setPower(turningPower);
+                BRM.setPower(turningPower);
+            }
+            if (currentAngle>targetAngle+errorMargin) {
+                FLM.setPower(turningPower);
+                BLM.setPower(turningPower);
+                FRM.setPower(-turningPower);
+                BRM.setPower(-turningPower);
+            }
+
+            telemetry.addData("TARGET ANGLE", targetAngle);
+            telemetry.addData("CURRENT ANGLE", getAngle());
+            telemetry.update();
+
+            currentAngle = getAngle();
         }
+
+        FLM.setPower(0);
+        FRM.setPower(0);
+        BLM.setPower(0);
+        BRM.setPower(0);
     }
 }

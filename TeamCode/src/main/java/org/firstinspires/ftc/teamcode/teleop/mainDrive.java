@@ -39,11 +39,12 @@ public class mainDrive extends LinearOpMode {
     // positions, assume 0 is minimum
     double min_position = 0;
     double max_position = 4180;
-    double leeway = 35;
-    int two_points = 352;
-    int three_points = 1840;
-    int four_points = 3024;
-    int five_points = 4150;
+    double leeway = 32;
+    int zero_position = 0;
+    int two_points = 291;
+    int three_points = 1835;
+    int four_points = 3050;
+    int five_points = 4190;
 
 
     // Setting up Slug Mode Parameters
@@ -169,7 +170,7 @@ public class mainDrive extends LinearOpMode {
                     slide.setPower(slidePower);
                     slide_moving_to_position = true;
                 } else if (currentGamePad2.dpad_down && !previousGamePad2.dpad_down) {
-                    slide.setTargetPosition(0);
+                    slide.setTargetPosition(zero_position);
                     slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     slide.setPower(slidePower);
                     slide_moving_to_position = true;
@@ -260,7 +261,7 @@ public class mainDrive extends LinearOpMode {
                     slide.setPower(slidePower);
                     slide_moving_to_position = true;
                 } else if (currentGamePad2.dpad_down && !previousGamePad2.dpad_down) {
-                    slide.setTargetPosition(0);
+                    slide.setTargetPosition(zero_position);
                     slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     slide.setPower(slidePower);
                     slide_moving_to_position = true;
