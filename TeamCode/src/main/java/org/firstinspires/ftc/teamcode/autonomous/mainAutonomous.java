@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.*;
+import java.util.HashMap;
 
 @Autonomous(name="MainAutonomous", group="--")
 //@Disabled
@@ -18,13 +20,21 @@ public class mainAutonomous extends LinearOpMode {
     private CRServo rightIntake = null;
     private CRServo leftIntake  = null;
 
-    // case (Left perspective looking at field from starting point)
-
+    //power variables
     double FRPower, BRPower, FLPower, BLPower;
     double speed = 0.5;
     double turningPower = 0.3;
     double errorMargin = 1; // degrees
     // REV Motors TICK COUNT = 28 ticks
+
+    // object detection cases (Left perspective looking at field from starting point)
+    double left_side = 0;
+    double right_side = 0;
+
+    Gamepad previousGamePad1 = new Gamepad();
+    Gamepad currentGamePad1 = new Gamepad();
+
+
 
     // BNO055IMU is the orientation sensor
     BNO055IMU imu;
@@ -75,36 +85,53 @@ public class mainAutonomous extends LinearOpMode {
         FLM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         BLM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
+
+
         twoLeft();
     }
 
+    // 132 cm is 1 foot
+    // counter-clockwise is positive
     private void oneLeft() {
-        runStraight(132, 90);
-        turnToAngle(90);
+        runStraight(6, 90);
+        turn(90);
+        runStraight(50, 90);
+        turn(-90);
+        runStraight(110, 90);
     }
 
     private void twoLeft() {
-        runStraight(132, 90);
-        turnToAngle(90);
+        runStraight(116, 90);
+        turn(90);
     }
 
     private void threeLeft() {
-        runStraight(132, 90);
-        turnToAngle(90);
+        runStraight(6, 90);
+        turn(-90);
+        runStraight(50, 90);
+        turn(90);
+        runStraight(110, 90);
     }
 
     private void oneRight() {
-        runStraight(132, 90);
-        turnToAngle(90);
+        runStraight(6, 90);
+        turn(90);
+        runStraight(50, 90);
+        turn(-90);
+        runStraight(110, 90);
     }
 
     private void twoRight() {
         runStraight(132, 90);
-        turnToAngle(90);
+        turn(90);
     }
 
     private void threeRight() {
-
+        runStraight(6, 90);
+        turn(-90);
+        runStraight(50, 90);
+        turn(90);
+        runStraight(110, 90);
     }
 
     private double getAngle() {
@@ -131,7 +158,6 @@ public class mainAutonomous extends LinearOpMode {
 
 
     public int CMtoTicks(double DistanceCM){
-
         return (int) (DistanceCM * 23.7671);
     }// calculation
 
@@ -155,31 +181,31 @@ public class mainAutonomous extends LinearOpMode {
 
 //        double FLBRTickMultiplier = FLPower/FRPower;
 
-        if(FRPower<0){
+        if (FRPower<0) {
             FRM.setTargetPosition(-ticks);
         }
-        else{
+        else {
             FRM.setTargetPosition(ticks);
         }
 
-        if(FLPower<0){
+        if (FLPower<0) {
             FLM.setTargetPosition(-ticks);
         }
-        else{
+        else {
             FLM.setTargetPosition(ticks);
         }
 
-        if(BRPower<0){
+        if (BRPower<0) {
             BRM.setTargetPosition(-ticks);
         }
-        else{
+        else {
             BRM.setTargetPosition(ticks);
         }
 
-        if(BLPower<0){
+        if (BLPower<0) {
             BLM.setTargetPosition(-ticks);
         }
-        else{
+        else {
             BLM.setTargetPosition(ticks);
         }
 
@@ -216,7 +242,7 @@ public class mainAutonomous extends LinearOpMode {
         BLM.setPower(0);
     }
 
-    public void turnToAngle(double degrees){
+    public void turn(double degrees){
         FRM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         FLM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BRM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -235,16 +261,16 @@ public class mainAutonomous extends LinearOpMode {
             }
 
             if (currentAngle<targetAngle-errorMargin) {
-                FLM.setPower(-turningPower);
-                BLM.setPower(-turningPower);
-                FRM.setPower(turningPower);
-                BRM.setPower(turningPower);
+                FLM.setPower(-motorPower);
+                BLM.setPower(-motorPower);
+                FRM.setPower(motorPower);
+                BRM.setPower(motorPower);
             }
             if (currentAngle>targetAngle+errorMargin) {
-                FLM.setPower(turningPower);
-                BLM.setPower(turningPower);
-                FRM.setPower(-turningPower);
-                BRM.setPower(-turningPower);
+                FLM.setPower(motorPower);
+                BLM.setPower(motorPower);
+                FRM.setPower(-motorPower);
+                BRM.setPower(-motorPower);
             }
 
             telemetry.addData("TARGET ANGLE", targetAngle);
