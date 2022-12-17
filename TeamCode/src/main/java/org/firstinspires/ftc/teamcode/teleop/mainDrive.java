@@ -99,19 +99,8 @@ public class mainDrive extends LinearOpMode {
         slide.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        // Setting parameters for imu
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.mode = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled = false;
-
-        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
-        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "imu".
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-
-        imu.initialize(parameters);
+        // See IMU intialization steps below
+        initializeIMU();
 
         //direction for headless mode
         double direction;
@@ -123,6 +112,7 @@ public class mainDrive extends LinearOpMode {
         read_slide_encoder = true;
 
         boolean headlessMode = true;
+        boolean headlessSwitch = false;
 
         waitForStart();
         runtime.reset();
@@ -142,11 +132,18 @@ public class mainDrive extends LinearOpMode {
 
             if(currentGamePad1.right_bumper && !previousGamePad1.right_bumper){
                 headlessMode = !headlessMode;
+                headlessSwitch = true;
             }
 
-            if(headlessMode) {
+            if (headlessMode) {
                 slide_encoder_value = slide.getCurrentPosition();
                 // currentGamePad1.dpad_down && !previousGamePad1.dpad_down
+
+                // if recent switch then intialize imu
+                if (headlessSwitch) {
+                    initializeIMU();
+                    headlessSwitch = false;
+                }
 
                 // check for presets and zero position
                 if (currentGamePad2.a && !previousGamePad2.a) {
