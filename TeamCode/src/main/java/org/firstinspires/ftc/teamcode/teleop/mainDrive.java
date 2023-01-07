@@ -172,8 +172,9 @@ public class mainDrive extends LinearOpMode {
                     }
 
                     if (currentGamePad2.right_trigger > 0) {
-                        slide.setPower(-currentGamePad1.right_trigger);
+                        slide.setPower(-currentGamePad2.right_trigger);
                     } else if (currentGamePad2.left_trigger > 0) {
+                        telemetry.addData("left_triggerpressed", currentGamePad2.left_trigger > 0);
                         slide.setPower(currentGamePad2.left_trigger);
                     } else {
                         slide.setPower(0);
@@ -258,12 +259,17 @@ public class mainDrive extends LinearOpMode {
                     }
 
                     if (currentGamePad2.right_trigger > 0) {
+                        telemetry.addData("right_triggerpressed", currentGamePad2.right_trigger > 0);
                         slide.setPower(-currentGamePad2.right_trigger);
                     } else if (currentGamePad2.left_trigger > 0) {
+                        telemetry.addData("left_triggerpressed", currentGamePad2.left_trigger > 0);
                         slide.setPower(currentGamePad2.left_trigger);
                     } else {
                         slide.setPower(0);
                     }
+                }
+                else{
+                    slide.setPower(0);
                 }
 
                 // biwheel intake
