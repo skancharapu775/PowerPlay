@@ -23,7 +23,7 @@ import java.util.List;
  * is explained below.
  */
 @TeleOp(name = "Concept: TensorFlow Object Detection Webcam", group = "Concept")
-@Disabled
+// @Disabled
 public class sleeveDetection extends LinearOpMode {
 
     /*
@@ -33,8 +33,8 @@ public class sleeveDetection extends LinearOpMode {
      * has been downloaded to the Robot Controller's SD FLASH memory, it must to be loaded using loadModelFromFile()
      * Here we assume it's an Asset.    Also see method initTfod() below .
      */
-    private static final String TFOD_MODEL_ASSET = "PowerPlay.tflite";
-    // private static final String TFOD_MODEL_FILE  = "/sdcard/FIRST/tflitemodels/CustomTeamModel.tflite";
+    // private static final String TFOD_MODEL_ASSET = "PowerPlayTHS.tflite";
+    private static final String TFOD_MODEL_FILE  = "/sdcard/FIRST/PowerPlayTHS.tflite"; // sd card
 
 
     private static final String[] LABELS = {
@@ -53,7 +53,7 @@ public class sleeveDetection extends LinearOpMode {
      * random data. As an example, here is a example of a fragment of a valid key:
      *      ... yIgIzTqZ4mWjk9wd3cZO9T1axEqzuhxoGlfOOI2dRzKS4T0hQ8kT ...
      * Once you've obtained a license key, copy the string from the Vuforia web site
-     * and paste it in to your code on the next line, between the double quotes.
+     * and paste it in to your fcode on the next line, between the double quotes.
      */
     private static final String VUFORIA_KEY =
             "AbIGMsX/////AAABmdF2oR5gBUIhgUBTLH8qL2ko4GIwZFzoIejoc3ZRmUqg5cCR4aZXR4E1Y2tl4U++tqyvj/TKTbG22Pwj96fJhnHU+fb6MzWG6kAMhzo1Leg/fVhBgFk2Xb461uzYZvXr2PKJQAX7MQiyNblyArGGEjZL0oZ9129UjgvUMUP3oVipQiuVchoOG4YV3xZrlYWxankBupy326b96vLO2vbPOunRHWQmsTeOmdYB8DNqrAnxLCkYpa/YWwyYx1Es+bN8Je4pXbJuYjSQxYR36mkjpkbIardjQqte9CDxxMyD8CgUDMrf7L9Z9gaTM+vC1Tv8I6Ei0m1NfGMWsG/RT0fr1om/pVAkC61+j8IRb+JCYpVB";
@@ -157,7 +157,7 @@ public class sleeveDetection extends LinearOpMode {
 
         // Use loadModelFromAsset() if the TF Model is built in as an asset by Android Studio
         // Use loadModelFromFile() if you have downloaded a custom team model to the Robot Controller's FLASH.
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
-        // tfod.loadModelFromFile(TFOD_MODEL_FILE, LABELS);
+        //tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
+        tfod.loadModelFromFile(TFOD_MODEL_FILE, LABELS);
     }
 }

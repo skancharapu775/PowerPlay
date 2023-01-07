@@ -23,6 +23,7 @@ public class mainDrive extends LinearOpMode {
     private CRServo rightIntake = null;
     private CRServo leftIntake = null;
 
+
     double FRPower, BRPower, FLPower, BLPower;
 
     //set constants
@@ -38,14 +39,11 @@ public class mainDrive extends LinearOpMode {
 
     // positions, assume 0 is minimum
     double min_position = 0;
-    double max_position = 4180;
-    double leeway = 32;
-    int zero_position = 0;
-    int two_points = 291;
-    int three_points = 1835;
-    int four_points = 3050;
-    int five_points = 4190;
-
+    double max_position = 100;
+    int two_points = 215;
+    int three_points = 1820;
+    int four_points = 3100;
+    int five_points = 4115;
 
     // Setting up Slug Mode Parameters
     boolean slugMode = false;
@@ -76,7 +74,6 @@ public class mainDrive extends LinearOpMode {
         //GamePads to save previous state of gamepad for button toggling
         Gamepad previousGamePad1 = new Gamepad();
         Gamepad currentGamePad1 = new Gamepad();
-
         Gamepad previousGamePad2 = new Gamepad();
         Gamepad currentGamePad2 = new Gamepad();
 
@@ -99,8 +96,19 @@ public class mainDrive extends LinearOpMode {
         slide.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        // See IMU intialization steps below
-        initializeIMU();
+        // Setting parameters for imu
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.mode = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled = false;
+
+        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
+        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
+        // and named "imu".
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+
+        imu.initialize(parameters);
 
         //direction for headless mode
         double direction;
@@ -112,7 +120,6 @@ public class mainDrive extends LinearOpMode {
         read_slide_encoder = true;
 
         boolean headlessMode = true;
-        boolean headlessSwitch = false;
 
         waitForStart();
         runtime.reset();
@@ -123,29 +130,19 @@ public class mainDrive extends LinearOpMode {
                 //setting previous state of gamepad1 and current position for later use toggling slug mode
                 previousGamePad1.copy(currentGamePad1);
                 currentGamePad1.copy(gamepad1);
-
                 previousGamePad2.copy(currentGamePad2);
                 currentGamePad2.copy(gamepad2);
             }
             catch(RobotCoreException e){
             }
-
             if(currentGamePad1.right_bumper && !previousGamePad1.right_bumper){
                 headlessMode = !headlessMode;
-                headlessSwitch = true;
             }
 
-            if (headlessMode) {
+            if(headlessMode) {
                 slide_encoder_value = slide.getCurrentPosition();
                 // currentGamePad1.dpad_down && !previousGamePad1.dpad_down
 
-                // if recent switch then intialize imu
-                if (headlessSwitch) {
-                    initializeIMU();
-                    headlessSwitch = false;
-                }
-
-                // check for presets and zero position
                 if (currentGamePad2.a && !previousGamePad2.a) {
                     slide.setTargetPosition(two_points);
                     slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
@@ -166,8 +163,9 @@ public class mainDrive extends LinearOpMode {
                     slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     slide.setPower(slidePower);
                     slide_moving_to_position = true;
-                } else if (currentGamePad2.dpad_down && !previousGamePad2.dpad_down) {
-                    slide.setTargetPosition(zero_position);
+                }
+                else if (currentGamePad2.dpad_down && !previousGamePad2.dpad_down) {
+                    slide.setTargetPosition(0);
                     slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     slide.setPower(slidePower);
                     slide_moving_to_position = true;
@@ -179,23 +177,25 @@ public class mainDrive extends LinearOpMode {
                         slide_moving_to_position = false;
                     }
 
-                    if (currentGamePad2.left_trigger > 0) {
-                        slide.setPower(-currentGamePad2.left_trigger);
-                    } else if (currentGamePad2.right_trigger > 0) {
+                    if (currentGamePad2.right_trigger > 0) {
                         slide.setPower(currentGamePad2.right_trigger);
+                    } else if (currentGamePad2.left_trigger > 0) {
+                        telemetry.addData("left_triggerpressed", currentGamePad2.left_trigger > 0);
+                        slide.setPower(-currentGamePad2.left_trigger);
                     } else {
                         slide.setPower(0);
                     }
                 }
-                else if (!slide_moving_to_position) {
+                else{
                     slide.setPower(0);
                 }
 
+
                 // biwheel intake
-                if (currentGamePad2.right_bumper && !currentGamePad2.left_bumper) {
+                if ((currentGamePad1.b && !currentGamePad1.x) || (currentGamePad2.left_bumper && !currentGamePad2.right_bumper)) {
                     leftIntake.setPower(-1); // outtake
                     rightIntake.setPower(1);
-                } else if (currentGamePad2.left_bumper && !currentGamePad2.right_bumper) {
+                } else if ((currentGamePad1.x && !currentGamePad1.b) || (currentGamePad2.right_bumper && !currentGamePad2.left_bumper)) {
                     leftIntake.setPower(1); // intake
                     rightIntake.setPower(-1);
                 } else {
@@ -204,7 +204,7 @@ public class mainDrive extends LinearOpMode {
                 }
 
                 // button a to toggle slug mode
-                if (currentGamePad1.a && !previousGamePad1.a) {
+                if (currentGamePad1.left_bumper && !previousGamePad1.left_bumper) {
                     slugMode = !slugMode;
                 }
 
@@ -236,7 +236,6 @@ public class mainDrive extends LinearOpMode {
                 slide_encoder_value = slide.getCurrentPosition();
 //                 currentGamePad1.dpad_down && !previousGamePad1.dpad_down
 
-                // check for presets and zero position
                 if (currentGamePad2.a && !previousGamePad2.a) {
                     slide.setTargetPosition(two_points);
                     slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
@@ -257,8 +256,9 @@ public class mainDrive extends LinearOpMode {
                     slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     slide.setPower(slidePower);
                     slide_moving_to_position = true;
-                } else if (currentGamePad2.dpad_down && !previousGamePad2.dpad_down) {
-                    slide.setTargetPosition(zero_position);
+                }
+                else if (currentGamePad2.dpad_down && !previousGamePad2.dpad_down) {
+                    slide.setTargetPosition(0);
                     slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     slide.setPower(slidePower);
                     slide_moving_to_position = true;
@@ -270,39 +270,41 @@ public class mainDrive extends LinearOpMode {
                         slide_moving_to_position = false;
                     }
 
-                    if (currentGamePad2.left_trigger > 0) {
-                        slide.setPower(-currentGamePad2.left_trigger);
-                    } else if (currentGamePad2.right_trigger > 0) {
+                    if (currentGamePad2.right_trigger > 0) {
+                        telemetry.addData("right_triggerpressed", currentGamePad2.right_trigger > 0);
                         slide.setPower(currentGamePad2.right_trigger);
+                    } else if (currentGamePad2.left_trigger > 0) {
+                        telemetry.addData("left_triggerpressed", currentGamePad2.left_trigger > 0);
+                        slide.setPower(-currentGamePad2.left_trigger);
                     } else {
                         slide.setPower(0);
                     }
                 }
-                else if (!slide_moving_to_position) {
+                else{
                     slide.setPower(0);
                 }
 
                 // biwheel intake
-                if (currentGamePad2.right_bumper && !currentGamePad2.left_bumper) {
-                    leftIntake.setPower(-1); // outtake
-                    rightIntake.setPower(1);
-                } else if (currentGamePad2.left_bumper && !currentGamePad2.right_bumper) {
-                    leftIntake.setPower(1); // intake
-                    rightIntake.setPower(-1);
-                } else {
-                    leftIntake.setPower(0);
-                    rightIntake.setPower(0);
-                }
+//                if (currentGamePad1.right_bumper && !currentGamePad1.left_bumper) {
+//                    leftIntake.setPower(-1); // outtake
+//                    rightIntake.setPower(1);
+//                } else if (currentGamePad1.left_bumper && !currentGamePad1.right_bumper) {
+//                    leftIntake.setPower(1); // intake
+//                    rightIntake.setPower(-1);
+//                } else {
+//                    leftIntake.setPower(0);
+//                    rightIntake.setPower(0);
+//                }
 
                 // button a to toggle slug mode
-                if (currentGamePad1.a && !previousGamePad1.a) {
+                if (currentGamePad1.left_bumper && !previousGamePad1.left_bumper) {
                     slugMode = !slugMode;
                 }
 
-                FRPower = (-gamepad1.left_stick_y - gamepad1.left_stick_x - directionMultiplier*gamepad1.right_stick_x);
-                BRPower = (-gamepad1.left_stick_y + gamepad1.left_stick_x - directionMultiplier*gamepad1.right_stick_x);
-                FLPower = (-gamepad1.left_stick_y + gamepad1.left_stick_x + directionMultiplier*gamepad1.right_stick_x);
-                BLPower = (-gamepad1.left_stick_y - gamepad1.left_stick_x + directionMultiplier*gamepad1.right_stick_x);
+                FRPower = (-gamepad1.left_stick_y - gamepad1.left_stick_x - directionMultiplier*gamepad1.right_stick_x) * -1;
+                BRPower = (-gamepad1.left_stick_y + gamepad1.left_stick_x - directionMultiplier*gamepad1.right_stick_x) * -1;
+                FLPower = (-gamepad1.left_stick_y + gamepad1.left_stick_x + directionMultiplier*gamepad1.right_stick_x) * -1;
+                BLPower = (-gamepad1.left_stick_y - gamepad1.left_stick_x + directionMultiplier*gamepad1.right_stick_x) * -1;
 
                 if (slugMode) {
                     FRPower = FRPower * slugMultiplier;
@@ -311,10 +313,10 @@ public class mainDrive extends LinearOpMode {
                     BLPower = BLPower * slugMultiplier;
                 }
 
-                FRM.setPower(FRPower);
-                BRM.setPower(BRPower);
-                FLM.setPower(FLPower);
-                BLM.setPower(BLPower);
+                FRM.setPower(-FRPower);
+                BRM.setPower(-BRPower);
+                FLM.setPower(-FLPower);
+                BLM.setPower(-BLPower);
             }
 
             telemetry.addData("slide position", slide_encoder_value);
@@ -328,23 +330,6 @@ public class mainDrive extends LinearOpMode {
 
         }
     }
-
-    private void initializeIMU() {
-        // Setting parameters for imu
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.mode = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled = false;
-
-        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
-        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "imu".
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-
-        imu.initialize(parameters);
-    }
-
 
     private double getAngle() {
         /* We experimentally determined the Z axis is the axis we want to use for heading angle.
@@ -367,4 +352,5 @@ public class mainDrive extends LinearOpMode {
 
         return globalAngle;
     }
+
 }

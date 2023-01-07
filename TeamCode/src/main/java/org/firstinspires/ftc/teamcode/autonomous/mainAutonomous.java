@@ -7,6 +7,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.*;
 import java.util.HashMap;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import java.util.List;
 
 @Autonomous(name="MainAutonomous", group="--")
 //@Disabled
@@ -24,8 +32,9 @@ public class mainAutonomous extends LinearOpMode {
     double FRPower, BRPower, FLPower, BLPower;
     double speed = 0.5;
     double turningPower = 0.3;
-    double errorMargin = 1; // degrees
+    double errorMargin = 0.5; // degrees
     // REV Motors TICK COUNT = 28 ticks
+    double teleop = 1; // auto = -1, teleop = 1
 
     // object detection cases (Left perspective looking at field from starting point)
     double left_side = 0;
@@ -87,17 +96,17 @@ public class mainAutonomous extends LinearOpMode {
 
 
 
-        twoLeft();
+        threeLeft();
     }
 
     // 132 cm is 1 foot
     // counter-clockwise is positive
     private void oneLeft() {
-        runStraight(6, 90);
+        runStraight(11, 90); // 6
         turn(90);
         runStraight(50, 90);
         turn(-90);
-        runStraight(110, 90);
+        runStraight(105, 90); // 110
     }
 
     private void twoLeft() {
@@ -106,32 +115,32 @@ public class mainAutonomous extends LinearOpMode {
     }
 
     private void threeLeft() {
-        runStraight(6, 90);
+        runStraight(11, 90);
         turn(-90);
         runStraight(50, 90);
         turn(90);
-        runStraight(110, 90);
+        runStraight(105, 90);
     }
 
     private void oneRight() {
-        runStraight(6, 90);
+        runStraight(11, 90);
         turn(90);
         runStraight(50, 90);
         turn(-90);
-        runStraight(110, 90);
+        runStraight(105, 90);
     }
 
     private void twoRight() {
-        runStraight(132, 90);
+        runStraight(116, 90);
         turn(90);
     }
 
     private void threeRight() {
-        runStraight(6, 90);
+        runStraight(11, 90);
         turn(-90);
         runStraight(50, 90);
         turn(90);
-        runStraight(110, 90);
+        runStraight(105, 90);
     }
 
     private double getAngle() {
@@ -158,7 +167,7 @@ public class mainAutonomous extends LinearOpMode {
 
 
     public int CMtoTicks(double DistanceCM){
-        return (int) (DistanceCM * 23.7671);
+        return (int) (DistanceCM * 23.7671 * teleop);
     }// calculation
 
     public void runStraight(double centimeters, double direction) {
@@ -248,7 +257,7 @@ public class mainAutonomous extends LinearOpMode {
         BRM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BLM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         double currentAngle = getAngle();
-        double targetAngle = currentAngle + degrees;
+        double targetAngle = currentAngle - degrees * teleop;
         double motorPower = turningPower;
 
         while (currentAngle<(targetAngle-errorMargin) || currentAngle>(targetAngle+errorMargin))
@@ -261,16 +270,16 @@ public class mainAutonomous extends LinearOpMode {
             }
 
             if (currentAngle<targetAngle-errorMargin) {
-                FLM.setPower(-motorPower);
-                BLM.setPower(-motorPower);
-                FRM.setPower(motorPower);
-                BRM.setPower(motorPower);
-            }
-            if (currentAngle>targetAngle+errorMargin) {
                 FLM.setPower(motorPower);
                 BLM.setPower(motorPower);
                 FRM.setPower(-motorPower);
                 BRM.setPower(-motorPower);
+            }
+            if (currentAngle>targetAngle+errorMargin) {
+                FLM.setPower(-motorPower);
+                BLM.setPower(-motorPower);
+                FRM.setPower(motorPower);
+                BRM.setPower(motorPower);
             }
 
             telemetry.addData("TARGET ANGLE", targetAngle);
