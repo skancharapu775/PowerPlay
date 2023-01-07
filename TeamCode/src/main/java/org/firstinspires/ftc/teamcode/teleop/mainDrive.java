@@ -172,9 +172,9 @@ public class mainDrive extends LinearOpMode {
                     }
 
                     if (currentGamePad2.right_trigger > 0) {
-                        slide.setPower(currentGamePad1.right_trigger);
+                        slide.setPower(-currentGamePad1.right_trigger);
                     } else if (currentGamePad2.left_trigger > 0) {
-                        slide.setPower(-currentGamePad2.left_trigger);
+                        slide.setPower(currentGamePad2.left_trigger);
                     } else {
                         slide.setPower(0);
                     }
@@ -251,16 +251,16 @@ public class mainDrive extends LinearOpMode {
                     slide_moving_to_position = true;
                 }
 
-                if (currentGamePad1.right_trigger > 0 || currentGamePad1.left_trigger > 0) {
+                if (currentGamePad2.right_trigger > 0 || currentGamePad2.left_trigger > 0) {
                     if (slide_moving_to_position) {
                         slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                         slide_moving_to_position = false;
                     }
 
-                    if (currentGamePad1.right_trigger > 0) {
-                        slide.setPower(-currentGamePad1.right_trigger);
-                    } else if (currentGamePad1.left_trigger > 0) {
-                        slide.setPower(currentGamePad1.left_trigger);
+                    if (currentGamePad2.right_trigger > 0) {
+                        slide.setPower(-currentGamePad2.right_trigger);
+                    } else if (currentGamePad2.left_trigger > 0) {
+                        slide.setPower(currentGamePad2.left_trigger);
                     } else {
                         slide.setPower(0);
                     }
