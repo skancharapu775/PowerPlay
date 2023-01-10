@@ -9,9 +9,9 @@ import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.*;
 
-@TeleOp(name="MainDrive", group="--")
+@TeleOp(name="DebuggingFile", group="--")
 //@Disabled
-public class mainDrive extends LinearOpMode {
+public class debuggingFile extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -157,29 +157,58 @@ public class mainDrive extends LinearOpMode {
 
                 if (currentGamePad2.a && !previousGamePad2.a) {
                     slide.setTargetPosition(two_points);
+                    if (slide_encoder_value < two_points) {
+                        slide.setPower(-slidePower);
+                    }
+                    else {
+                        slide.setPower(slidePower);
+                    }
                     slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION); // try negative powers
-                    slide.setPower(slidePower);
                     slide_moving_to_position = true;
                 } else if (currentGamePad2.x && !previousGamePad2.x) {
                     slide.setTargetPosition(three_points);
+                    if (slide_encoder_value < three_points) {
+                        slide.setPower(-slidePower);
+                    }
+                    else {
+                        slide.setPower(slidePower);
+                    }
                     slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    slide.setPower(slidePower);
+                    slide.setPower(-slidePower);
                     slide_moving_to_position = true;
                 } else if (currentGamePad2.b && !previousGamePad2.b) {
                     slide.setTargetPosition(four_points);
+                    if (slide_encoder_value < four_points) {
+                        slide.setPower(-slidePower);
+                    }
+                    else {
+                        slide.setPower(slidePower);
+                    }
                     slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    slide.setPower(slidePower);
+                    slide.setPower(-slidePower);
                     slide_moving_to_position = true;
                 } else if (currentGamePad2.y && !previousGamePad2.y) {
                     slide.setTargetPosition(five_points);
+                    if (slide_encoder_value < five_points) {
+                        slide.setPower(-slidePower);
+                    }
+                    else {
+                        slide.setPower(slidePower);
+                    }
                     slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    slide.setPower(slidePower);
+                    slide.setPower(-slidePower);
                     slide_moving_to_position = true;
                 }
                 else if (currentGamePad2.dpad_down && !previousGamePad2.dpad_down) {
                     slide.setTargetPosition(0);
+                    if (slide_encoder_value < 0) {
+                        slide.setPower(-slidePower);
+                    }
+                    else {
+                        slide.setPower(slidePower);
+                    }
                     slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    slide.setPower(slidePower);
+                    slide.setPower(-slidePower);
                     slide_moving_to_position = true;
                 }
 
@@ -293,9 +322,9 @@ public class mainDrive extends LinearOpMode {
                 }
 
                 // biwheel intake
-               if (currentGamePad1.right_bumper && !currentGamePad1.left_bumper) {
-                   leftIntake.setPower(-1); // outtake
-                   rightIntake.setPower(1);
+                if (currentGamePad1.right_bumper && !currentGamePad1.left_bumper) {
+                    leftIntake.setPower(-1); // outtake
+                    rightIntake.setPower(1);
                 } else if (currentGamePad1.left_bumper && !currentGamePad1.right_bumper) {
                     leftIntake.setPower(1); // intake
                     rightIntake.setPower(-1);
