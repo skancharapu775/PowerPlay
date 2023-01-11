@@ -91,6 +91,10 @@ public class mainDrive extends LinearOpMode {
         BRM.setDirection(DcMotorEx.Direction.REVERSE);
         FRM.setDirection(DcMotorEx.Direction.REVERSE);
 
+        // TO USE: When presets implemented and arm calibration complete
+        slide.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         // Setting parameters for imu
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.mode = BNO055IMU.SensorMode.IMU;
@@ -111,7 +115,7 @@ public class mainDrive extends LinearOpMode {
 
         // use to find presets
         slide.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        slide.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER); // change to Extended motor
+        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         boolean headlessMode = true;
 
@@ -139,25 +143,9 @@ public class mainDrive extends LinearOpMode {
                 telemetry.addData("Right trigger", currentGamePad2.right_trigger);
                 telemetry.addData("Left trigger", currentGamePad2.left_trigger);
 
-                if (currentGamePad2.a) {
-                    telemetry.addData("a is pressed", slide_encoder_value);
-                }
-
-                if (currentGamePad2.x) {
-                    telemetry.addData("x is pressed", slide_encoder_value);
-                }
-
-                if (currentGamePad2.b) {
-                    telemetry.addData("b is pressed", slide_encoder_value);
-                }
-
-                if (currentGamePad2.y) {
-                    telemetry.addData("y is pressed", slide_encoder_value);
-                }
-
                 if (currentGamePad2.a && !previousGamePad2.a) {
                     slide.setTargetPosition(two_points);
-                    slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION); // try negative powers
+                    slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     slide.setPower(slidePower);
                     slide_moving_to_position = true;
                 } else if (currentGamePad2.x && !previousGamePad2.x) {
@@ -185,7 +173,7 @@ public class mainDrive extends LinearOpMode {
 
                 if (currentGamePad2.right_trigger > 0.1 || currentGamePad2.left_trigger > 0.1) {
                     if (slide_moving_to_position) {
-                        slide.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+                        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                         slide_moving_to_position = false;
                     }
 
@@ -274,9 +262,9 @@ public class mainDrive extends LinearOpMode {
                     slide_moving_to_position = true;
                 }
 
-                if (currentGamePad2.right_trigger > 0.2 || currentGamePad2.left_trigger > 0.2) {
+                if (currentGamePad2.right_trigger > 0 || currentGamePad2.left_trigger > 0) {
                     if (slide_moving_to_position) {
-                        slide.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+                        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                         slide_moving_to_position = false;
                     }
 
@@ -288,15 +276,15 @@ public class mainDrive extends LinearOpMode {
                         slide.setPower(0);
                     }
                 }
-                else{
+                else if (!slide_moving_to_position){
                     slide.setPower(0);
                 }
 
                 // biwheel intake
-               if (currentGamePad1.right_bumper && !currentGamePad1.left_bumper) {
-                   leftIntake.setPower(-1); // outtake
-                   rightIntake.setPower(1);
-                } else if (currentGamePad1.left_bumper && !currentGamePad1.right_bumper) {
+                if ((currentGamePad1.b && !currentGamePad1.x) || (currentGamePad2.left_bumper && !currentGamePad2.right_bumper)) {
+                    leftIntake.setPower(-1); // outtake
+                    rightIntake.setPower(1);
+                } else if ((currentGamePad1.x && !currentGamePad1.b) || (currentGamePad2.right_bumper && !currentGamePad2.left_bumper)) {
                     leftIntake.setPower(1); // intake
                     rightIntake.setPower(-1);
                 } else {
