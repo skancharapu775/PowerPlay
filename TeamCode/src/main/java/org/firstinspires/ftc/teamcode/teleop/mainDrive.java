@@ -185,7 +185,7 @@ public class mainDrive extends LinearOpMode {
                         slide.setPower(0);
                     }
                 }
-                else{
+                else if (!slide_moving_to_position){
                     slide.setPower(0);
                 }
 

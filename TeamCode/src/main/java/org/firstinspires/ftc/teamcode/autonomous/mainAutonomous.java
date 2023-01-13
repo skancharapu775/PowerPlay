@@ -125,7 +125,7 @@ public class mainAutonomous extends LinearOpMode {
     private void oneLeft() {
         runStraight(11, 90); // 6
         turn(90);
-        runStraight(50, 90);
+        runStraight(52, 90);
         turn(-90);
         runStraight(90, 90); // 110
     }
@@ -138,7 +138,7 @@ public class mainAutonomous extends LinearOpMode {
     private void threeLeft() {
         runStraight(11, 90);
         turn(-90);
-        runStraight(50, 90);
+        runStraight(52, 90);
         turn(88);
         runStraight(90, 90);
     }
@@ -160,7 +160,7 @@ public class mainAutonomous extends LinearOpMode {
         runStraight(11, 90);
         turn(-90);
         runStraight(50, 90);
-        turn(90);
+        turn(89);
         runStraight(90, 90);
     }
 
