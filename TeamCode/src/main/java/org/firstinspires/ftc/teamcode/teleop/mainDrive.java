@@ -48,7 +48,7 @@ public class mainDrive extends LinearOpMode {
     int two_cones = 209;
     int three_cones = 386;
     int four_cones = 571;
-    int five_cones = 730;
+    int five_cones = 805;
 
     // Setting up Slug Mode Parameters
     boolean slugMode = false;
@@ -282,6 +282,33 @@ public class mainDrive extends LinearOpMode {
                 slide_encoder_value = slide.getCurrentPosition();
 
                 topLights.setPower(0.15); // Dim Lights
+
+                if (currentGamePad2.start) {
+                    if (currentGamePad2.dpad_down && !previousGamePad2.dpad_down) {
+                        slide.setTargetPosition(two_cones);
+                        slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                        slide.setPower(slidePower);
+                        slide_moving_to_position = true;
+                    }
+                    else if (currentGamePad2.dpad_left && !previousGamePad2.dpad_left) {
+                        slide.setTargetPosition(three_cones);
+                        slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                        slide.setPower(slidePower);
+                        slide_moving_to_position = true;
+                    }
+                    else if (currentGamePad2.dpad_right && !previousGamePad2.dpad_right) {
+                        slide.setTargetPosition(four_cones);
+                        slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                        slide.setPower(slidePower);
+                        slide_moving_to_position = true;
+                    }
+                    else if (currentGamePad2.dpad_up && !previousGamePad2.dpad_up) {
+                        slide.setTargetPosition(five_cones);
+                        slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                        slide.setPower(slidePower);
+                        slide_moving_to_position = true;
+                    }
+                }
 
                 if (currentGamePad2.a && !previousGamePad2.a) {
                     slide.setTargetPosition(two_points);
