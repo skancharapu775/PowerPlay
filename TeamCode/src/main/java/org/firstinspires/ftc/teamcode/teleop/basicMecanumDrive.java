@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="basicMecanumDrive", group="--")
-//@Disabled
+@Disabled
 public class basicMecanumDrive extends LinearOpMode {
 
     // Declare OpMode members.

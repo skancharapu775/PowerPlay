@@ -22,7 +22,7 @@ public class mainDrive extends LinearOpMode {
     private DcMotor slide = null; // 288 ticks per rotation
     private CRServo rightIntake = null;
     private CRServo leftIntake = null;
-
+    private DcMotor topLights = null;
 
     double FRPower, BRPower, FLPower, BLPower;
 
@@ -45,6 +45,10 @@ public class mainDrive extends LinearOpMode {
     int three_points = 1875;
     int four_points = 3100;
     int five_points = 4215;
+    int two_cones = 209;
+    int three_cones = 386;
+    int four_cones = 571;
+    int five_cones = 730;
 
     // Setting up Slug Mode Parameters
     boolean slugMode = false;
@@ -71,6 +75,7 @@ public class mainDrive extends LinearOpMode {
         slide = hardwareMap.get(DcMotorEx.class, "liftMotor");
         rightIntake = hardwareMap.get(CRServo.class,"WheelRight"); // configure these two
         leftIntake = hardwareMap.get(CRServo.class,"WheelLeft");
+        topLights = hardwareMap.get(DcMotorEx.class, "topLights");
 
         //GamePads to save previous state of gamepad for button toggling
         Gamepad previousGamePad1 = new Gamepad();
@@ -92,6 +97,7 @@ public class mainDrive extends LinearOpMode {
 
         BRM.setDirection(DcMotorEx.Direction.REVERSE);
         FRM.setDirection(DcMotorEx.Direction.REVERSE);
+        topLights.setDirection(DcMotorEx.Direction.REVERSE);
 
         // TO USE: When presets implemented and arm calibration complete
         slide.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -145,6 +151,8 @@ public class mainDrive extends LinearOpMode {
                 telemetry.addData("Right trigger", currentGamePad2.right_trigger);
                 telemetry.addData("Left trigger", currentGamePad2.left_trigger);
 
+                topLights.setPower(1); // Lights at full power
+
                 if (currentGamePad1.start && !previousGamePad1.start) {
                     parameters = new BNO055IMU.Parameters();
                     parameters.mode = BNO055IMU.SensorMode.IMU;
@@ -153,6 +161,33 @@ public class mainDrive extends LinearOpMode {
                     parameters.loggingEnabled = false;
 
                     imu.initialize(parameters);
+                }
+
+                if (currentGamePad2.start) {
+                    if (currentGamePad2.dpad_down && !previousGamePad2.dpad_down) {
+                        slide.setTargetPosition(two_cones);
+                        slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                        slide.setPower(slidePower);
+                        slide_moving_to_position = true;
+                    }
+                    else if (currentGamePad2.dpad_left && !previousGamePad2.dpad_left) {
+                        slide.setTargetPosition(three_cones);
+                        slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                        slide.setPower(slidePower);
+                        slide_moving_to_position = true;
+                    }
+                    else if (currentGamePad2.dpad_right && !previousGamePad2.dpad_right) {
+                        slide.setTargetPosition(four_cones);
+                        slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                        slide.setPower(slidePower);
+                        slide_moving_to_position = true;
+                    }
+                    else if (currentGamePad2.dpad_up && !previousGamePad2.dpad_up) {
+                        slide.setTargetPosition(five_cones);
+                        slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                        slide.setPower(slidePower);
+                        slide_moving_to_position = true;
+                    }
                 }
 
                 if (currentGamePad2.a && !previousGamePad2.a) {
@@ -245,6 +280,8 @@ public class mainDrive extends LinearOpMode {
             }
             else{
                 slide_encoder_value = slide.getCurrentPosition();
+
+                topLights.setPower(0.15); // Dim Lights
 
                 if (currentGamePad2.a && !previousGamePad2.a) {
                     slide.setTargetPosition(two_points);

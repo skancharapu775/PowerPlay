@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -10,7 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.*;
 
 @TeleOp(name="Headless Switch", group="--")
-// @Disabled
+@Disabled
 public class headlessSwitch extends LinearOpMode {
 
     // Declare OpMode members.

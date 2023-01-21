@@ -69,7 +69,7 @@ public class sleeveDetectionTest extends LinearOpMode {
     private static final String[] LABELS = {
             "Square", // 1
             "Triangle", // 2
-            "Circle" // 3
+            "Circle", // 3
     };
 
     /*

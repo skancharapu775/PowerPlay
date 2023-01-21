@@ -13,12 +13,13 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.*;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 @Autonomous(name="AutonomousTest", group="--")
-// @Disabled
+@Disabled
 public class autoTest extends LinearOpMode {
 
     // Declare OpMode members.

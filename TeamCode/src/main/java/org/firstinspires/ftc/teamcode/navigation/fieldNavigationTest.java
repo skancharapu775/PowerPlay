@@ -7,6 +7,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -46,7 +47,7 @@ import java.util.List;
  */
 
 @TeleOp(name="fieldNavigationTest", group ="Concept")
-// @Disabled
+@Disabled
 public class fieldNavigationTest extends LinearOpMode {
 
     /*
