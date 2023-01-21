@@ -9,9 +9,9 @@ import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.*;
 
-@TeleOp(name="MainDrive", group="--")
+@TeleOp(name="Headless Switch", group="--")
 // @Disabled
-public class mainDrive extends LinearOpMode {
+public class headlessSwitch extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -39,8 +39,6 @@ public class mainDrive extends LinearOpMode {
     // positions, assume 0 is minimum
     double min_position = 0;
     double max_position = 100;
-    double angle = 0;
-    double stored_angle;
     int two_points = 215;
     int three_points = 1875;
     int four_points = 3100;
@@ -145,15 +143,16 @@ public class mainDrive extends LinearOpMode {
                 telemetry.addData("Right trigger", currentGamePad2.right_trigger);
                 telemetry.addData("Left trigger", currentGamePad2.left_trigger);
 
-                if (currentGamePad1.start && !previousGamePad1.start) {
-                    parameters = new BNO055IMU.Parameters();
-                    parameters.mode = BNO055IMU.SensorMode.IMU;
-                    parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-                    parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-                    parameters.loggingEnabled = false;
+               if (currentGamePad1.start && !previousGamePad1.start) {
+                   parameters = new BNO055IMU.Parameters();
+                   parameters.mode = BNO055IMU.SensorMode.IMU;
+                   parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+                   parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+                   parameters.loggingEnabled = false;
 
-                    imu.initialize(parameters);
-                }
+                  imu.initialize(parameters);
+              }
+
 
                 if (currentGamePad2.a && !previousGamePad2.a) {
                     slide.setTargetPosition(two_points);
@@ -358,7 +357,6 @@ public class mainDrive extends LinearOpMode {
 
         lastAngles = angles;
 
-        // return globalAngle;
         return globalAngle;
     }
 
