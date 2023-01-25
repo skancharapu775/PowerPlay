@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -49,11 +50,10 @@ public class mainDrive extends LinearOpMode {
     double slugMultiplier = 0.33;
 
     // set up imu for gyro
-    // BNO055IMU is the orientation sensor
-    BNO055IMU imu;
-    Orientation lastAngles = new Orientation();
-    double globalAngle;
+    public IMU imu;
 
+    public double lastAngle;
+    double globalAngle;
 
 
     @Override
@@ -96,20 +96,18 @@ public class mainDrive extends LinearOpMode {
         slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Setting parameters for imu
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.mode = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled = false;
-
-        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
-        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "imu".
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-
+        imu = hardwareMap.get(IMU.class, "imu");
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD,
+                RevHubOrientationOnRobot.UsbFacingDirection.UP));
         imu.initialize(parameters);
 
+        //creating object to store angles
+        YawPitchRollAngles robotOrientation;
+        robotOrientation = imu.getRobotYawPitchRollAngles();
+
         //direction for headless mode
+        lastAngle = robotOrientation.getYaw(AngleUnit.DEGREES);
         double direction;
         double speed;
 
@@ -124,15 +122,11 @@ public class mainDrive extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            try{
-                //setting previous state of gamepad1 and current position for later use toggling slug mode
-                previousGamePad1.copy(currentGamePad1);
-                currentGamePad1.copy(gamepad1);
-                previousGamePad2.copy(currentGamePad2);
-                currentGamePad2.copy(gamepad2);
-            }
-            catch(RobotCoreException e){
-            }
+            //setting previous state of gamepad1 and current position for later use toggling slug mode
+            previousGamePad1.copy(currentGamePad1);
+            currentGamePad1.copy(gamepad1);
+            previousGamePad2.copy(currentGamePad2);
+            currentGamePad2.copy(gamepad2);
 
             if(currentGamePad1.right_bumper && !previousGamePad1.right_bumper){
                 headlessMode = !headlessMode;
@@ -321,7 +315,6 @@ public class mainDrive extends LinearOpMode {
             telemetry.addData("FLPower", FLPower);
             telemetry.addData("BLPower", BLPower);
             telemetry.addData("Direction", getAngle());
-            telemetry.addData("Accelerometer", imu.getAcceleration());
             telemetry.update();
 
         }
@@ -332,10 +325,11 @@ public class mainDrive extends LinearOpMode {
            We have to process the angle because the imu works in euler angles so the Z axis is
            returned as 0 to +180 or 0 to -180 rolling back to -179 or +179 when rotation passes
            180 degrees. We detect this transition and track the total cumulative angle of rotation. */
+        YawPitchRollAngles robotOrientation;
+        robotOrientation = imu.getRobotYawPitchRollAngles();
 
-        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
-        double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
+        double currentAngle = robotOrientation.getYaw(AngleUnit.DEGREES);
+        double deltaAngle = currentAngle - lastAngle;
 
         if (deltaAngle < -180)
             deltaAngle += 360;
@@ -344,7 +338,7 @@ public class mainDrive extends LinearOpMode {
 
         globalAngle += deltaAngle;
 
-        lastAngles = angles;
+        lastAngle = robotOrientation.getYaw(AngleUnit.DEGREES);
 
         return globalAngle;
     }

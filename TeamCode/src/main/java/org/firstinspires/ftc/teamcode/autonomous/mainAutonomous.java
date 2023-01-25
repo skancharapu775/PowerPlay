@@ -81,19 +81,7 @@ public class mainAutonomous extends LinearOpMode {
         // rightIntake = hardwareMap.get(CRServo.class,"WheelRight");
         // leftIntake = hardwareMap.get(CRServo.class,"WheelLeft");
 
-        // Setting parameters for imu
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.mode = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled = false;
 
-        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
-        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "imu".
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-
-        imu.initialize(parameters);
         theoreticalAngle = getAngle();
 
         BRM.setDirection(DcMotorEx.Direction.REVERSE);
