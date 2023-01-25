@@ -79,10 +79,10 @@ public class basicMecanumDrive extends LinearOpMode {
             //BLPower = BLPower * slugMultiplier;
             //}
 
-//            FRM.setPower(FRPower);
-//            BRM.setPower(BRPower);
-//            FLM.setPower(FLPower);
-//            BLM.setPower(BLPower);
+            FRM.setPower(FRPower);
+            BRM.setPower(BRPower);
+            FLM.setPower(FLPower);
+            BLM.setPower(BLPower);
 
             /*if (gamepad1.left_trigger > gamepad1.right_trigger) {
                 intake = false;
@@ -114,25 +114,6 @@ public class basicMecanumDrive extends LinearOpMode {
                 rightIntake.setPower(-outputPower);
                 leftIntake.setPower(-outputPower);
             }*/
-            boolean FRM_moving_to_position = true;
-
-            if (gamepad1.right_trigger > 0 || gamepad1.left_trigger > 0) {
-//                if (FRM_moving_to_position) {
-//                    FRM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//                    FRM_moving_to_position = false;
-//                }
-
-                if (gamepad1.right_trigger > 0) {
-                    FRM.setPower(-gamepad1.right_trigger);
-                } else if (gamepad1.left_trigger > 0) {
-                    FRM.setPower(gamepad1.left_trigger);
-                } else {
-                    FRM.setPower(0);
-                }
-            }
-            else{
-                FRM.setPower(0);
-            }
 
             telemetry.addData("FRPower", FRPower);
             telemetry.addData("BRPower", BRPower);
