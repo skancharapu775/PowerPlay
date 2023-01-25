@@ -239,11 +239,11 @@ public class mainDrive extends LinearOpMode {
 
                 // biwheel intake
                 if ((currentGamePad1.b && !currentGamePad1.x) || (currentGamePad2.left_bumper && !currentGamePad2.right_bumper)) {
-                    leftIntake.setPower(-1); // outtake
+                    leftIntake.setPower(-1); // intake
                     rightIntake.setPower(1);
                 } else if ((currentGamePad1.x && !currentGamePad1.b) || (currentGamePad2.right_bumper && !currentGamePad2.left_bumper)) {
-                    leftIntake.setPower(1); // intake
-                    rightIntake.setPower(-1);
+                    leftIntake.setPower(0.7 *1); // outtake
+                    rightIntake.setPower(0.7*-1);
                 } else {
                     leftIntake.setPower(0);
                     rightIntake.setPower(0);
@@ -281,7 +281,7 @@ public class mainDrive extends LinearOpMode {
             else{
                 slide_encoder_value = slide.getCurrentPosition();
 
-                topLights.setPower(0.15); // Dim Lights
+                topLights.setPower(0); // Dim Lights
 
                 if (currentGamePad2.start) {
                     if (currentGamePad2.dpad_down && !previousGamePad2.dpad_down) {
@@ -358,11 +358,11 @@ public class mainDrive extends LinearOpMode {
 
                 // biwheel intake
                 if ((currentGamePad1.b && !currentGamePad1.x) || (currentGamePad2.left_bumper && !currentGamePad2.right_bumper)) {
-                    leftIntake.setPower(-1); // outtake
+                    leftIntake.setPower(-1); // intake
                     rightIntake.setPower(1);
                 } else if ((currentGamePad1.x && !currentGamePad1.b) || (currentGamePad2.right_bumper && !currentGamePad2.left_bumper)) {
-                    leftIntake.setPower(1); // intake
-                    rightIntake.setPower(-1);
+                    leftIntake.setPower(0.7 * 1); // outtake
+                    rightIntake.setPower(0.7 * -1);
                 } else {
                     leftIntake.setPower(0);
                     rightIntake.setPower(0);

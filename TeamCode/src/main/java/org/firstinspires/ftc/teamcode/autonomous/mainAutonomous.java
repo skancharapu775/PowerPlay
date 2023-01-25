@@ -20,13 +20,18 @@ import java.util.List;
 //@Disabled
 public class mainAutonomous extends LinearOpMode {
     // Declare OpMode members.
-    private ElapsedTime runtime = new ElapsedTime();
     private DcMotorEx FRM = null; // V2
     private DcMotorEx BRM = null; // V4
     private DcMotorEx FLM = null; // V1
     private DcMotorEx BLM = null; // V3
     private CRServo rightIntake = null;
     private CRServo leftIntake  = null;
+
+    // main timer
+    private ElapsedTime runtime = new ElapsedTime();
+
+    // time to press start after initialization
+    double starting_time = 0;
 
     //power variables
     double FRPower, BRPower, FLPower, BLPower;
@@ -53,8 +58,8 @@ public class mainAutonomous extends LinearOpMode {
             "Circle" // 3
     };
 
-    Gamepad previousGamePad1 = new Gamepad();
-    Gamepad currentGamePad1 = new Gamepad();
+    // Gamepad previousGamePad1 = new Gamepad();
+    // Gamepad currentGamePad1 = new Gamepad();
 
     // BNO055IMU is the orientation sensor
     BNO055IMU imu;
@@ -66,7 +71,8 @@ public class mainAutonomous extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
-        ElapsedTime holdTimer = new ElapsedTime();
+        waitForStart();
+        starting_time = runtime.time();
 
         FRM = hardwareMap.get(DcMotorEx.class, "frontRight");
         BRM = hardwareMap.get(DcMotorEx.class, "backRight");
@@ -89,8 +95,6 @@ public class mainAutonomous extends LinearOpMode {
 
         imu.initialize(parameters);
         theoreticalAngle = getAngle();
-
-        waitForStart();
 
         BRM.setDirection(DcMotorEx.Direction.REVERSE);
         FRM.setDirection(DcMotorEx.Direction.REVERSE);
@@ -125,7 +129,7 @@ public class mainAutonomous extends LinearOpMode {
     private void oneLeft() {
         runStraight(11, 90); // 6
         turn(90);
-        runStraight(48, 90);
+        runStraight(60, 90);
         turn(-90);
         runStraight(90, 90); // 110
     }
@@ -138,7 +142,7 @@ public class mainAutonomous extends LinearOpMode {
     private void threeLeft() {
         runStraight(11, 90);
         turn(-90);
-        runStraight(54, 90);
+        runStraight(48, 90);
         turn(88.5);
         runStraight(90, 90);
     }
@@ -152,6 +156,7 @@ public class mainAutonomous extends LinearOpMode {
     }
 
     private void twoRight() {
+        turn(-3);
         runStraight(116, 90);
         // turn(90);
     }
@@ -336,7 +341,7 @@ public class mainAutonomous extends LinearOpMode {
             // (typically 16/9).
             tfod.setZoom(1.5, 16.0/9.0);
         }
-        while (runtime.time() < 10) {
+        while ((runtime.time() - starting_time) < 12) {
             if (tfod != null) {
                 // getUpdatedRecognitions() will return null if no new information is available since
                 // the last time that call was made.
