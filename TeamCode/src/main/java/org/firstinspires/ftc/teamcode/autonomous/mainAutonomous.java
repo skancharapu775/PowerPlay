@@ -72,6 +72,8 @@ public class mainAutonomous extends LinearOpMode {
         telemetry.update();
 
         waitForStart();
+
+        // initialization time
         starting_time = runtime.time();
 
         FRM = hardwareMap.get(DcMotorEx.class, "frontRight");

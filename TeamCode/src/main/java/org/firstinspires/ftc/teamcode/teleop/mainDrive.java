@@ -41,7 +41,7 @@ public class mainDrive extends LinearOpMode {
     double max_position = 100;
     double angle = 0;
     double stored_angle;
-    int two_points = 215;
+    int two_points = 274;
     int three_points = 1875;
     int four_points = 3100;
     int five_points = 4215;
@@ -52,7 +52,7 @@ public class mainDrive extends LinearOpMode {
 
     // Setting up Slug Mode Parameters
     boolean slugMode = false;
-    double slugMultiplier = 0.33;
+    double slugMultiplier = 0.33; // default value 0.33
 
     // set up imu for gyro
     // BNO055IMU is the orientation sensor
@@ -97,7 +97,7 @@ public class mainDrive extends LinearOpMode {
 
         BRM.setDirection(DcMotorEx.Direction.REVERSE);
         FRM.setDirection(DcMotorEx.Direction.REVERSE);
-        topLights.setDirection(DcMotorEx.Direction.REVERSE);
+        // topLights.setDirection(DcMotorEx.Direction.REVERSE);
 
         // TO USE: When presets implemented and arm calibration complete
         slide.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -150,7 +150,7 @@ public class mainDrive extends LinearOpMode {
                 slide_encoder_value = slide.getCurrentPosition();
                 telemetry.addData("Right trigger", currentGamePad2.right_trigger);
                 telemetry.addData("Left trigger", currentGamePad2.left_trigger);
-
+                telemetry.addData("Mode", "Headless Mode");
                 topLights.setPower(1); // Lights at full power
 
                 if (currentGamePad1.start && !previousGamePad1.start) {
@@ -164,7 +164,7 @@ public class mainDrive extends LinearOpMode {
                 }
 
                 if (currentGamePad2.start) {
-                    if (currentGamePad2.dpad_down && !previousGamePad2.dpad_down) {
+                    if (currentGamePad2.back && !previousGamePad2.back) {
                         slide.setTargetPosition(two_cones);
                         slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                         slide.setPower(slidePower);
@@ -280,11 +280,11 @@ public class mainDrive extends LinearOpMode {
             }
             else{
                 slide_encoder_value = slide.getCurrentPosition();
-
+                telemetry.addData("Mode", "Mecanum Mode");
                 topLights.setPower(0); // Dim Lights
 
                 if (currentGamePad2.start) {
-                    if (currentGamePad2.dpad_down && !previousGamePad2.dpad_down) {
+                    if (currentGamePad2.back && !previousGamePad2.back) {
                         slide.setTargetPosition(two_cones);
                         slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                         slide.setPower(slidePower);

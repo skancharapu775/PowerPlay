@@ -80,10 +80,10 @@ public class basicMecanumDrive extends LinearOpMode {
             //BLPower = BLPower * slugMultiplier;
             //}
 
-            FRM.setPower(FRPower);
-            BRM.setPower(BRPower);
-            FLM.setPower(FLPower);
-            BLM.setPower(BLPower);
+            FRM.setPower(FRPower * 0.33);
+            BRM.setPower(BRPower * 0.33);
+            FLM.setPower(FLPower * 0.33);
+            BLM.setPower(BLPower * 0.33);
 
             /*if (gamepad1.left_trigger > gamepad1.right_trigger) {
                 intake = false;
